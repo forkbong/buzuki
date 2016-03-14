@@ -1,0 +1,19 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+footer {
+  bottom: 0;
+  height: 60px;
+  position: absolute;
+}
+
+textarea {
+  font-family: monospace;
+  resize: none;
+}

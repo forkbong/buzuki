@@ -1,0 +1,23 @@
+{% macro render_field(field) %}
+<fieldset class="form-group {% if field.errors %} has-error {% endif %}">
+  <label class="col-sm-2 control-label">{{ field.label }}</label>
+  <div class="col-sm-10">
+    {% if field.type == 'TextAreaField' %}
+    {{ field(class='form-control', rows='10')|safe }}
+    {% else %}
+    {{ field(class='form-control')|safe }}
+    {% endif %}
+    {% if field.errors %}{% for error in field.errors %}
+    <span class="help-block">{{ error }}</span><br>
+    {% endfor %}{% endif %}
+  </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_button(label) %}
+<div class="form-group">
+  <div class="col-sm-offset-2 col-sm-10">
+    <button class="btn btn-default" type="submit">{{ label }}</button>
+  </div>
+</div>
+{%- endmacro %}
