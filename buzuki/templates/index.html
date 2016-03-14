@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<legend>
+  Τραγούδια
+  <span class=pull-right>
+    {% if admin %}
+    <a href="{{ url_for('admin.index') }}"><span class="glyphicon glyphicon-king" aria-hidden="true"></span></a>
+    <a href="{{ url_for('admin.logout') }}"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
+    {% endif %}
+  </span>
+</legend>
+
+<div class="row">
+  <div class="list-group">
+    {% for song in songs %}
+    <div class="col-sm-6 col-lg-4">
+      <a href="{{ url_for('main.song', slug=song.slug) }}" class="list-group-item">
+        {{ song.artist }} - {{ song.name }}
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

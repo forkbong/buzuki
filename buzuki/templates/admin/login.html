@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% from "admin/formhelpers.html" import render_field, render_button %}
+
+<legend>Σύνδεση</legend>
+
+<form method="post" action="{{ url_for('admin.login') }}" class="form-horizontal">
+  {{ form.csrf_token }}
+  {{ render_field(form.password) }}
+  {{ render_button('Σύνδεση') }}
+</form>
+{% endblock %}
