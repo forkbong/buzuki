@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<legend>{{ legend }}</legend>
+{% from "admin/formhelpers.html" import render_field, render_button %}
+<form method="post" action="{{ action }}" class="form-horizontal">
+  {{ form.csrf_token }}
+  {{ render_field(form.name) }}
+  {{ render_field(form.artist) }}
+  {{ render_field(form.body) }}
+  {{ render_field(form.link) }}
+  {{ render_button('Submit') }}
+</form>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='vendor/autosize.min.js') }}"></script>
+<script>autosize($('textarea'));</script>
+{% endblock %}
