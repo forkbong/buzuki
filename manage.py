@@ -16,7 +16,7 @@ def make_shell_context():
     return dict(app=app, db=db, Song=Song)
 
 
-app = create_app()
+app = create_app('development')
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('shell', Shell(make_context=make_shell_context))

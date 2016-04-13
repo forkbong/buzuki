@@ -11,6 +11,10 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # Future default
 
 
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+
 class TestingConfig(Config):
     PWHASH = 'pbkdf2:md5:1000$p8KuXd4u$0d0f29842d6c5a3e3401bd4dcea0785d'
     SECRET_KEY = 'sekrit'
@@ -23,5 +27,6 @@ class TestingConfig(Config):
 
 config = {
     'default': Config,
+    'development': DevelopmentConfig,
     'testing': TestingConfig,
 }
