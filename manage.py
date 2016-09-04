@@ -2,31 +2,23 @@
 
 import os
 
+import click
 from flask import current_app
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager, Shell
-from flask_script.commands import ShowUrls
+from flask.cli import FlaskGroup
 
 from buzuki import create_app, db
 from buzuki.models import Song
 from buzuki.utils import export_song
 
 
-def make_shell_context():
-    return dict(app=app, db=db, Song=Song)
+@click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
+def cli():
+    """Management script for buzuki."""
 
 
-app = create_app('development')
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('shell', Shell(make_context=make_shell_context))
-manager.add_command('db', MigrateCommand)
-manager.add_command('urls', ShowUrls)
-
-
-@MigrateCommand.option('--directory', '-d', dest='directory',
-                       help="song directory")
-def exportsongs(directory):
+@cli.command('export')
+@click.option('-d', '--directory', help="song directory")
+def export_songs(directory):
     """Export songs from the database."""
     print("Exporting...")
     songs = Song.query.all()
@@ -34,9 +26,9 @@ def exportsongs(directory):
         export_song(song, directory)
 
 
-@MigrateCommand.option('--directory', '-d', dest='directory',
-                       help="song directory")
-def importsongs(directory):
+@cli.command('import')
+@click.option('-d', '--directory', help="song directory")
+def import_songs(directory):
     """Import songs to the database."""
     print("Importing...")
     Song.query.delete()
@@ -53,4 +45,4 @@ def importsongs(directory):
 
 
 if __name__ == '__main__':
-    manager.run()
+    cli()

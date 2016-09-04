@@ -5,7 +5,7 @@ init:
 	python3 manage.py db init
 	python3 manage.py db migrate
 	python3 manage.py db upgrade
-	python3 manage.py db importsongs
+	python3 manage.py import
 
 test:
 	isort --check-only .
