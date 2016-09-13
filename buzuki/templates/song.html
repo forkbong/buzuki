@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block title %}
+{{ song.name }} - {{ super() }}
+{%- endblock %}
+
 {% block content %}
 
 <legend>
