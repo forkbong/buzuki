@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block title %}
+Σύνδεση - {{ super() }}
+{%- endblock %}
+
 {% block content %}
 {% from "admin/formhelpers.html" import render_field, render_button %}
 
