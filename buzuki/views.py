@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, session
 from sqlalchemy.exc import OperationalError
 
 from buzuki.models import Song
-from buzuki.utils import Transposer
+from buzuki.utils import transpose
 
 main = Blueprint('main', __name__)
 
@@ -14,7 +14,7 @@ def prepare_song(slug, semitones=0):
     """Transpose song and use unicode signs."""
     song = Song.query.filter_by(slug=slug).first_or_404()
     if semitones != 0:
-        song.body = Transposer(song.body).transpose(semitones)
+        song.body = transpose(song.body, semitones)
     # FIXME: We assume that songs are greek
     # and there will be no 'b' in lyrics.
     song.body = re.sub('b', '♭', song.body)

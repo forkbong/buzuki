@@ -3,60 +3,35 @@ import re
 
 from flask import current_app
 
+SHARPS = ['D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#']
+FLATS = ['D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B', 'C', 'Db']
 
-class Transposer:
-    """Chord transposer.
 
-    Class attributes:
-        SHARPS: Chromatic scale with sharps.
-        FLATS: Chromatic scale with flats.
-
-    Attributes:
-        song: A string with the song to transpose.
-        num: Number of semitones to transpose `song` by.
-        notes: The possible root notes of the chords in `song`.
-        _carry: Number of spaces that need adjustment in the next chord
-                replacement.
-    """
-
-    SHARPS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    FLATS = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-
-    def __init__(self, song):
-        self.num = 0
-        self.notes = self.get_notes(song)
-        self.song = song.split('\n')
-        self._carry = 0
-
-    def get_notes(self, song):
-        """Find if `song` uses sharps or flats."""
-        if re.search(r'[DEGAB]b', song) is not None:
-            return self.FLATS
-        else:
-            return self.SHARPS
-
-    def transpose(self, num):
-        """Transpose `self.song` by `num` semitones."""
-        self.num = num
-        pattern = r'([A-G][#b]?)([^A-G\s]*)(\s*)'
-        new_song = []
-        for line in self.song:
-            new_line = re.sub(pattern, self.chordrepl, line)
-            new_song.append(new_line.rstrip())
-            self._carry = 0
-        return '\n'.join(new_song)
-
-    def chordrepl(self, matchobj):
+def transpose(song: str, num: int) -> str:
+    """Transpose `song` by `num` semitones."""
+    def chordrepl(matchobj):
         """Chord replace function."""
+        nonlocal carry
         note = matchobj.group(1)
         chord = matchobj.group(2)
         spaces = len(matchobj.group(3))
         # FIXME: Raises ValueError if a song has both sharps and flats
-        idx = (self.notes.index(note) + self.num) % 12
-        new = self.notes[idx]
-        self._carry += len(note) - len(new)
-        self._carry, spaces = sorted((0, self._carry + spaces))
+        idx = (notes.index(note) + num) % 12
+        new = notes[idx]
+        carry += len(note) - len(new)
+        carry, spaces = sorted((0, carry + spaces))
         return ''.join([new, chord, ' ' * spaces])
+
+    # FIXME: Assumes that both sharp and flat notes cannot coexist
+    notes = FLATS if re.search(r'[DEGAB]b', song) else SHARPS
+    lines = song.split('\n')
+    pattern = r'([A-G][#b]?)([^A-G\s]*)(\s*)'
+    new_song = []
+    for line in lines:
+        carry = 0
+        new_line = re.sub(pattern, chordrepl, line)
+        new_song.append(new_line.rstrip())
+    return '\n'.join(new_song)
 
 
 def greeklish(string, sep=None):
