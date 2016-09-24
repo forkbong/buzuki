@@ -3,18 +3,10 @@ from textwrap import dedent
 import pytest
 
 from buzuki.models import Song
-from buzuki.utils import Transposer, export_song
+from buzuki.utils import export_song, transpose
 
 
-class TestTrasposer:
-
-    def test_get_key(self):
-        tr = Transposer('A#GA#')
-        assert tr.notes == tr.SHARPS
-        tr = Transposer('AGA')
-        assert tr.notes == tr.SHARPS
-        tr = Transposer('AGbA')
-        assert tr.notes == tr.FLATS
+class TestTraspose:
 
     @pytest.mark.parametrize('semitones, expected', [
         (13, 'A#A#A#AD#dim   D7'),
@@ -23,8 +15,7 @@ class TestTrasposer:
         (-2, 'GGG F# Cdim    B7'),
     ])
     def test_transpose_sharps(self, semitones, expected):
-        tr = Transposer('AAA G# Ddim    C#7')
-        assert tr.transpose(semitones) == expected
+        assert transpose('AAA G# Ddim    C#7', semitones) == expected
 
     @pytest.mark.parametrize('semitones, expected', [
         (13, 'BbBbBbAEbdim   D7'),
@@ -33,8 +24,7 @@ class TestTrasposer:
         (-2, 'GGG Gb Cdim    B7'),
     ])
     def test_transpose_flats(self, semitones, expected):
-        tr = Transposer('AAA Ab Ddim    Db7')
-        assert tr.transpose(semitones) == expected
+        assert transpose('AAA Ab Ddim    Db7', semitones) == expected
 
     def test_song(self):
         original = dedent("""\
@@ -61,14 +51,14 @@ class TestTrasposer:
             Fm                        G             Cm
             και τότες πια καμάρωνα τα δυο σου μαύρα φρύδια
             """)
-        transposed = Transposer(original).transpose(1)
+        transposed = transpose(original, 1)
         assert transposed == one_up
 
     def test_untransposable(self):
         # Currently doesn't work for a song with both sharps and flats
         original = "A# Bb"
         with pytest.raises(ValueError):
-            Transposer(original).transpose(1)
+            transpose(original, 1)
 
 
 def test_export_song(client):

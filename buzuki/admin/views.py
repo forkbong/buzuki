@@ -7,7 +7,7 @@ from buzuki import db
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import login_required
 from buzuki.models import Song
-from buzuki.utils import Transposer, export_song
+from buzuki.utils import export_song, transpose
 
 admin = Blueprint('admin', __name__)
 
@@ -55,7 +55,7 @@ def add():
 def save(id, semitones):
     """Save a transposed song to the database."""
     song = Song.query.get_or_404(id)
-    song.body = Transposer(song.body).transpose(semitones)
+    song.body = transpose(song.body, semitones)
     db.session.commit()
     export_song(song)
     flash("{} was successfully updated.".format(song.name), 'success')
