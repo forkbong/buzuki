@@ -61,3 +61,24 @@ def test_database(client):
     assert song.artist == 'artist'
     assert song.link == 'link'
     assert song.body == 'body'
+
+
+def test_tofile(client):
+    song = Song(name='name', artist='artist', link='link', body='body')
+    song.tofile()
+    with open('/tmp/buzuki_test/name') as f:
+        assert f.read() == (
+            'name\n'
+            'artist\n'
+            'link\n'
+            '\n'
+            'body\n'
+        )
+
+
+def test_fromfile(client):
+    song = Song.fromfile('name')
+    assert song.name == 'name'
+    assert song.artist == 'artist'
+    assert song.link == 'link'
+    assert song.body == 'body'
