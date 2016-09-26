@@ -1,7 +1,4 @@
-import os
 import re
-
-from flask import current_app
 
 SHARPS = ['D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#']
 FLATS = ['D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B', 'C', 'Db']
@@ -62,12 +59,3 @@ def greeklish(string, sep=None):
     string = re.sub('[^a-z_ ]', '', string)
 
     return string
-
-
-def export_song(song, directory=None):
-    directory = directory or current_app.config['SONGDIR']
-    os.makedirs(directory, mode=0o755, exist_ok=True)
-    path = os.path.join(directory, song.slug)
-    with open(path, 'w') as f:
-        content = [song.name, song.artist, song.link, '', song.body, '']
-        f.write('\n'.join(content))
