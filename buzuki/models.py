@@ -1,5 +1,7 @@
+import os
 from urllib.parse import parse_qs, urlparse
 
+from flask import current_app as app
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from buzuki import db
@@ -18,6 +20,15 @@ class Song(db.Model):
 
     def __repr__(self):
         return '<Song %r>' % greeklish(self.name)
+
+    @classmethod
+    def fromfile(cls, filename):
+        directory = app.config['SONGDIR']
+        path = os.path.join(directory, filename)
+        with open(path) as f:
+            file = f.read()
+        name, artist, link, body = [x for x in file.split('\n', 3)]
+        return cls(name=name, artist=artist, link=link, body=body.strip('\n'))
 
     @property
     def youtube_id(self):
@@ -65,3 +76,11 @@ class Song(db.Model):
         body = value.replace('\r\n', '\n')
         body = [line.rstrip() for line in body.split('\n')]
         self._body = '\n'.join(body)
+
+    def tofile(self):
+        directory = app.config['SONGDIR']
+        os.makedirs(directory, mode=0o755, exist_ok=True)
+        path = os.path.join(directory, self.slug)
+        with open(path, 'w') as f:
+            content = [self.name, self.artist, self.link, '', self.body, '']
+            f.write('\n'.join(content))

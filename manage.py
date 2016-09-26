@@ -10,7 +10,6 @@ from gunicorn.app.base import BaseApplication
 
 from buzuki import create_app, db
 from buzuki.models import Song
-from buzuki.utils import export_song
 
 
 @click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
@@ -25,7 +24,7 @@ def export_songs(directory):
     print("Exporting...")
     songs = Song.query.all()
     for song in songs:
-        export_song(song, directory)
+        song.export(directory)
 
 
 @cli.command('import')
@@ -35,13 +34,8 @@ def import_songs(directory):
     print("Importing...")
     Song.query.delete()
     directory = directory or current_app.config['SONGDIR']
-    files = os.listdir(directory)
-    for name in files:
-        path = os.path.join(directory, name)
-        with open(path) as f:
-            file = f.read()
-        name, artist, link, body = [x for x in file.split('\n', 3)]
-        song = Song(name=name, artist=artist, link=link, body=body.strip('\n'))
+    for filename in os.listdir(directory):
+        song = Song.fromfile(filename)
         db.session.add(song)
     db.session.commit()
 

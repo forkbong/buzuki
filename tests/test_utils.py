@@ -2,8 +2,7 @@ from textwrap import dedent
 
 import pytest
 
-from buzuki.models import Song
-from buzuki.utils import export_song, transpose
+from buzuki.utils import transpose
 
 
 class TestTraspose:
@@ -59,16 +58,3 @@ class TestTraspose:
         original = "A# Bb"
         with pytest.raises(ValueError):
             transpose(original, 1)
-
-
-def test_export_song(client):
-    song = Song(name='name', artist='artist', body='body', link='link')
-    export_song(song)
-    with open('/tmp/buzuki_test/name') as f:
-        assert f.read() == dedent("""\
-            name
-            artist
-            link
-
-            body
-        """)

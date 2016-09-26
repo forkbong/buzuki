@@ -7,7 +7,7 @@ from buzuki import db
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import login_required
 from buzuki.models import Song
-from buzuki.utils import export_song, transpose
+from buzuki.utils import transpose
 
 admin = Blueprint('admin', __name__)
 
@@ -38,7 +38,7 @@ def add():
         )
         db.session.add(song)
         db.session.commit()
-        export_song(song)
+        song.tofile()
         flash("{} was successfully added.".format(song.name), 'success')
         return redirect(url_for('main.song', slug=song.slug))
 
@@ -57,7 +57,7 @@ def save(id, semitones):
     song = Song.query.get_or_404(id)
     song.body = transpose(song.body, semitones)
     db.session.commit()
-    export_song(song)
+    song.tofile()
     flash("{} was successfully updated.".format(song.name), 'success')
     return redirect(url_for('main.song', slug=song.slug))
 
@@ -74,7 +74,7 @@ def edit(id):
         song.body = form.body.data
         song.link = form.link.data
         db.session.commit()
-        export_song(song)
+        song.tofile()
         flash("{} was successfully updated.".format(song.name), 'success')
         return redirect(url_for('main.song', slug=song.slug))
 
