@@ -117,13 +117,15 @@ def test_save_delete(client):
     song = Song(name='name', artist='artist', link='link', body='Bm F# Bm')
     db.session.add(song)
     db.session.commit()
-    url = url_for('admin.save', id=1, semitones=1)
+    url = url_for('admin.save', slug='name', semitones=1)
     resp = client.get(url, follow_redirects=True)
     assert resp.status_code == 200
     song = Song.query.get(1)
     assert song.body == 'Cm G  Cm'
-    resp = client.get(url_for('admin.delete', id=1), follow_redirects=True)
+    resp = client.get(url_for('admin.delete', slug='name'),
+                      follow_redirects=True)
     assert b'name was successfully deleted' in resp.data
     assert Song.query.all() == []
-    resp = client.get(url_for('admin.delete', id=1), follow_redirects=True)
-    assert b'There is no song with id 1' in resp.data
+    resp = client.get(url_for('admin.delete', slug='name'),
+                      follow_redirects=True)
+    assert 'Δεν υπάρχει τέτοια σελίδα'.encode() in resp.data

@@ -50,11 +50,11 @@ def add():
     )
 
 
-@admin.route('/save/<int:id>/<int:semitones>')
+@admin.route('/save/<slug>/<int:semitones>')
 @login_required
-def save(id, semitones):
+def save(slug, semitones):
     """Save a transposed song to the database."""
-    song = Song.query.get_or_404(id)
+    song = Song.query.filter_by(slug=slug).first_or_404()
     song.body = transpose(song.body, semitones)
     db.session.commit()
     song.tofile()
@@ -62,11 +62,11 @@ def save(id, semitones):
     return redirect(url_for('main.song', slug=song.slug))
 
 
-@admin.route('/edit/<int:id>', methods=['GET', 'POST'])
+@admin.route('/edit/<slug>', methods=['GET', 'POST'])
 @login_required
-def edit(id):
+def edit(slug):
     form = SongForm(request.form)
-    song = Song.query.get_or_404(id)
+    song = Song.query.filter_by(slug=slug).first_or_404()
 
     if request.method == 'POST' and form.validate():
         song.name = form.name.data
@@ -87,21 +87,21 @@ def edit(id):
     return render_template(
         'admin/songform.html',
         form=form,
-        action=url_for('admin.edit', id=id),
+        action=url_for('admin.edit', slug=slug),
         legend=song.name,
     )
 
 
-@admin.route('/delete/<int:id>')
+@admin.route('/delete/<slug>')
 @login_required
-def delete(id):
-    song = Song.query.get(id)
+def delete(slug):
+    song = Song.query.filter_by(slug=slug).first_or_404()
     if song is not None:
         db.session.delete(song)
         db.session.commit()
         flash("{} was successfully deleted.".format(song.name), 'success')
     else:
-        flash("There is no song with id {}.".format(id), 'warning')
+        flash("There is no song with slug {}.".format(slug), 'warning')
     return redirect(url_for('main.index'))
 
 

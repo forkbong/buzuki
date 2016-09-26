@@ -25,7 +25,7 @@ def export_songs(directory):
     print("Exporting...")
     songs = Song.query.all()
     for song in songs:
-        song.export(directory)
+        song.tofile(directory)
 
 
 @cli.command('import')
