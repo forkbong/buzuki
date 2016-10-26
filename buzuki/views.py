@@ -1,7 +1,6 @@
 import re
 
 from flask import Blueprint, render_template, session
-from sqlalchemy.exc import OperationalError
 
 from buzuki.models import Song
 from buzuki.utils import transpose
@@ -11,7 +10,7 @@ main = Blueprint('main', __name__)
 
 def prepare_song(slug, semitones=0):
     """Transpose song and use unicode signs."""
-    song = Song.query.filter_by(slug=slug).first_or_404()
+    song = Song.fromfile(slug)
     if semitones != 0:
         song.body = transpose(song.body, semitones)
     # FIXME: We assume that songs are greek
@@ -25,13 +24,9 @@ def prepare_song(slug, semitones=0):
 @main.route('/songs/')
 def index():
     """A list of all songs in the database."""
-    try:
-        songs = Song.query.order_by(Song.name).all()
-    except OperationalError:
-        songs = []
     return render_template(
         'index.html',
-        songs=songs,
+        songs=Song.all(),
         admin=session.get('logged_in'),
     )
 

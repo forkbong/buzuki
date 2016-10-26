@@ -1,43 +1,17 @@
 #!/usr/bin/env python3
 
-import os
 from multiprocessing import cpu_count
 
 import click
-from flask import current_app
 from flask.cli import FlaskGroup
 from gunicorn.app.base import BaseApplication
 
-from buzuki import create_app, db
-from buzuki.models import Song
+from buzuki import create_app
 
 
 @click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
 def cli():
     """Management script for buzuki."""
-
-
-@cli.command('export')
-@click.option('-d', '--directory', help="song directory")
-def export_songs(directory):
-    """Export songs from the database."""
-    print("Exporting...")
-    songs = Song.query.all()
-    for song in songs:
-        song.tofile(directory)
-
-
-@cli.command('import')
-@click.option('-d', '--directory', help="song directory")
-def import_songs(directory):
-    """Import songs to the database."""
-    print("Importing...")
-    Song.query.delete()
-    directory = directory or current_app.config['SONGDIR']
-    for filename in os.listdir(directory):
-        song = Song.fromfile(filename)
-        db.session.add(song)
-    db.session.commit()
 
 
 @cli.command()
