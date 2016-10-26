@@ -1,6 +1,5 @@
 from flask import url_for
 
-from buzuki import db
 from buzuki.models import Song
 from buzuki.views import prepare_song
 
@@ -19,9 +18,8 @@ def test_404(client):
 def test_prepare_song(client):
     song1 = Song(name='name_a', artist='artist', link='link', body='D#')
     song2 = Song(name='name_b', artist='artist', link='link', body='Eb')
-    db.session.add(song1)
-    db.session.add(song2)
-    db.session.commit()
+    song1.tofile()
+    song2.tofile()
     assert prepare_song('name_a').body == 'D♯'
     assert prepare_song('name_b').body == 'E♭'
     assert prepare_song('name_a', semitones=-2).body == 'C♯'

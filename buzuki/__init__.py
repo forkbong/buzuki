@@ -1,10 +1,8 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 
 from config import config
 
-db = SQLAlchemy()
 csrf = CSRFProtect()
 
 
@@ -15,7 +13,6 @@ def create_app(config_name='default'):
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
 
-    db.init_app(app)
     csrf.init_app(app)
 
     from buzuki.views import main
