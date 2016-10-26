@@ -1,9 +1,7 @@
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, session, url_for)
-from sqlalchemy.exc import OperationalError
 from werkzeug.security import check_password_hash
 
-from buzuki import db
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import login_required
 from buzuki.models import Song
@@ -16,10 +14,7 @@ admin = Blueprint('admin', __name__)
 @login_required
 def index():
     """Simple CRUD interface."""
-    try:
-        songs = Song.query.order_by(Song.name).all()
-    except OperationalError:
-        songs = []
+    songs = Song.all()
     return render_template('admin/admin.html', songs=songs)
 
 
@@ -36,8 +31,6 @@ def add():
             body=form.body.data,
             link=form.link.data,
         )
-        db.session.add(song)
-        db.session.commit()
         song.tofile()
         return redirect(url_for('main.song', slug=song.slug))
 
@@ -53,9 +46,10 @@ def add():
 @login_required
 def save(slug, semitones):
     """Save a transposed song to the database."""
-    song = Song.query.filter_by(slug=slug).first_or_404()
-    song.body = transpose(song.body, semitones)
-    db.session.commit()
+    # FIXME: Small duplication with views.py
+    song = Song.fromfile(slug)
+    if semitones is not None:
+        song.body = transpose(song.body, semitones)
     song.tofile()
     return redirect(url_for('main.song', slug=song.slug))
 
@@ -64,14 +58,13 @@ def save(slug, semitones):
 @login_required
 def edit(slug):
     form = SongForm(request.form)
-    song = Song.query.filter_by(slug=slug).first_or_404()
+    song = Song.fromfile(slug)
 
     if request.method == 'POST' and form.validate():
         song.name = form.name.data
         song.artist = form.artist.data
         song.body = form.body.data
         song.link = form.link.data
-        db.session.commit()
         song.tofile()
         return redirect(url_for('main.song', slug=song.slug))
 
@@ -92,10 +85,9 @@ def edit(slug):
 @admin.route('/delete/<slug>')
 @login_required
 def delete(slug):
-    song = Song.query.filter_by(slug=slug).first_or_404()
+    song = Song.fromfile(slug)
     if song is not None:
-        db.session.delete(song)
-        db.session.commit()
+        song.delete()
     else:
         flash("There is no song with slug {}.".format(slug), 'warning')
     return redirect(url_for('main.index'))

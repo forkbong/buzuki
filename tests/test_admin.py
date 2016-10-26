@@ -1,6 +1,5 @@
 from flask import url_for
 
-from buzuki import db
 from buzuki.models import Song
 
 
@@ -73,7 +72,7 @@ def test_add(client):
         },
         follow_redirects=True
     )
-    song = Song.query.get(1)
+    song = Song.fromfile('name')
     assert song.name == 'name'
 
 
@@ -81,16 +80,16 @@ def test_save_delete(client):
     with client.session_transaction() as session:
         session['logged_in'] = True
     song = Song(name='name', artist='artist', link='link', body='Bm F# Bm')
-    db.session.add(song)
-    db.session.commit()
+    song.tofile()
+    assert len(Song.all()) == 1
     url = url_for('admin.save', slug='name', semitones=1)
     resp = client.get(url, follow_redirects=True)
     assert resp.status_code == 200
-    song = Song.query.get(1)
+    song = Song.fromfile('name')
     assert song.body == 'Cm G  Cm'
     resp = client.get(url_for('admin.delete', slug='name'),
                       follow_redirects=True)
-    assert Song.query.all() == []
+    assert Song.all() == []
     resp = client.get(url_for('admin.delete', slug='name'),
                       follow_redirects=True)
     assert 'Δεν υπάρχει τέτοια σελίδα'.encode() in resp.data

@@ -1,22 +1,18 @@
 import os
 from urllib.parse import parse_qs, urlparse
 
+from flask import abort
 from flask import current_app as app
-from sqlalchemy.ext.hybrid import hybrid_property
 
-from buzuki import db
 from buzuki.utils import greeklish
 
 
-class Song(db.Model):
-    __tablename__ = 'songs'
-
-    id = db.Column(db.Integer, primary_key=True)
-    _name = db.Column(db.String(64), unique=True)
-    slug = db.Column(db.String(64), unique=True)
-    artist = db.Column(db.String(64))
-    _body = db.Column(db.Text)
-    link = db.Column(db.String(64))
+class Song:
+    def __init__(self, name, artist, link, body):
+        self.name = name
+        self.artist = artist
+        self.link = link
+        self.body = body
 
     def __repr__(self):
         return '<Song %r>' % greeklish(self.name)
@@ -25,10 +21,25 @@ class Song(db.Model):
     def fromfile(cls, filename):
         directory = app.config['SONGDIR']
         path = os.path.join(directory, filename)
-        with open(path) as f:
-            file = f.read()
+        try:
+            with open(path) as f:
+                file = f.read()
+        except FileNotFoundError:
+            abort(404)
         name, artist, link, body = [x for x in file.split('\n', 3)]
         return cls(name=name, artist=artist, link=link, body=body.strip('\n'))
+
+    @classmethod
+    def all(cls):
+        """Get all songs from the database."""
+        songs = []
+        directory = app.config['SONGDIR']
+        for filename in os.listdir(directory):
+            path = os.path.join(directory, filename)
+            assert os.path.isfile(path)
+            song = cls.fromfile(path)
+            songs.append(song)
+        return songs
 
     @property
     def youtube_id(self):
@@ -54,7 +65,7 @@ class Song(db.Model):
         else:
             return None
 
-    @hybrid_property
+    @property
     def name(self):
         """Name getter."""
         return self._name
@@ -65,7 +76,7 @@ class Song(db.Model):
         self._name = value
         self.slug = greeklish(value, sep='_')
 
-    @hybrid_property
+    @property
     def body(self):
         """Body getter."""
         return self._body
@@ -84,3 +95,14 @@ class Song(db.Model):
         with open(path, 'w') as f:
             content = [self.name, self.artist, self.link, '', self.body, '']
             f.write('\n'.join(content))
+
+    def delete(self):
+        directory = app.config['SONGDIR']
+        path = os.path.join(directory, self.slug)
+        os.remove(path)
+
+    @staticmethod
+    def delete_all():
+        directory = app.config['SONGDIR']
+        for file in os.scandir(directory):
+            os.remove(file.path)

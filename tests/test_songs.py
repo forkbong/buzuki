@@ -1,6 +1,5 @@
 import pytest
 
-from buzuki import db
 from buzuki.models import Song
 
 
@@ -53,10 +52,8 @@ def test_invalid_youtube_id(client, link):
 
 def test_database(client):
     song = Song(name='name', artist='artist', link='link', body='body')
-    db.session.add(song)
-    db.session.commit()
-    song = Song.query.filter_by(slug='name').first()
-    assert song.id == 1
+    song.tofile()
+    song = Song.fromfile('name')
     assert song.name == 'name'
     assert song.artist == 'artist'
     assert song.link == 'link'
@@ -77,6 +74,7 @@ def test_tofile(client):
 
 
 def test_fromfile(client):
+    Song(name='name', artist='artist', link='link', body='body').tofile()
     song = Song.fromfile('name')
     assert song.name == 'name'
     assert song.artist == 'artist'
