@@ -52,7 +52,8 @@ class TestLogin:
             follow_redirects=True
         )
         assert resp.status_code == 200
-        assert b'You are now logged in' in resp.data
+        with client.session_transaction() as session:
+            assert session['logged_in']
 
         resp = client.get(url_for('admin.login'), follow_redirects=True)
         assert 'Έχεις ήδη συνδεθεί'.encode() in resp.data
@@ -83,12 +84,9 @@ class TestLogin:
 def test_logout(client):
     with client.session_transaction() as session:
         session['logged_in'] = True
-    resp = client.get(url_for('admin.logout'), follow_redirects=True)
-    assert b'Logged out successfully' in resp.data
+    client.get(url_for('admin.logout'), follow_redirects=True)
     with client.session_transaction() as session:
         assert not session['logged_in']
-    resp = client.get(url_for('admin.logout'), follow_redirects=True)
-    assert b'Logged out successfully' not in resp.data
 
 
 def test_add(client):
@@ -106,7 +104,6 @@ def test_add(client):
         },
         follow_redirects=True
     )
-    assert b'name was successfully added' in resp.data
     song = Song.query.get(1)
     assert song.name == 'name'
 
@@ -124,7 +121,6 @@ def test_save_delete(client):
     assert song.body == 'Cm G  Cm'
     resp = client.get(url_for('admin.delete', slug='name'),
                       follow_redirects=True)
-    assert b'name was successfully deleted' in resp.data
     assert Song.query.all() == []
     resp = client.get(url_for('admin.delete', slug='name'),
                       follow_redirects=True)

@@ -39,7 +39,6 @@ def add():
         db.session.add(song)
         db.session.commit()
         song.tofile()
-        flash("{} was successfully added.".format(song.name), 'success')
         return redirect(url_for('main.song', slug=song.slug))
 
     return render_template(
@@ -58,7 +57,6 @@ def save(slug, semitones):
     song.body = transpose(song.body, semitones)
     db.session.commit()
     song.tofile()
-    flash("{} was successfully updated.".format(song.name), 'success')
     return redirect(url_for('main.song', slug=song.slug))
 
 
@@ -75,7 +73,6 @@ def edit(slug):
         song.link = form.link.data
         db.session.commit()
         song.tofile()
-        flash("{} was successfully updated.".format(song.name), 'success')
         return redirect(url_for('main.song', slug=song.slug))
 
     # Populate form with song's attributes
@@ -99,7 +96,6 @@ def delete(slug):
     if song is not None:
         db.session.delete(song)
         db.session.commit()
-        flash("{} was successfully deleted.".format(song.name), 'success')
     else:
         flash("There is no song with slug {}.".format(slug), 'warning')
     return redirect(url_for('main.index'))
@@ -119,7 +115,6 @@ def login():
         pwhash = current_app.config['PWHASH']
         if check_password_hash(pwhash, password):
             session['logged_in'] = True
-            flash("You are now logged in.", 'success')
             # If redirected from a page that requires login, redirect back.
             if 'next_url' in session:
                 next_url = session['next_url']
@@ -136,5 +131,4 @@ def login():
 def logout():
     if session.get('logged_in'):
         session['logged_in'] = False
-        flash("Logged out successfully.", 'success')
     return redirect(url_for('main.index'))
