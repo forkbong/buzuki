@@ -2,7 +2,7 @@ from textwrap import dedent
 
 import pytest
 
-from buzuki.utils import transpose
+from buzuki.utils import greeklish, transpose
 
 
 class TestTraspose:
@@ -58,3 +58,13 @@ class TestTraspose:
         original = "A# Bb"
         with pytest.raises(ValueError):
             transpose(original, 1)
+
+
+@pytest.mark.parametrize('string, expected', [
+    ('ασδφ', 'asdf'),
+    ('τεστ τεστ', 'test_test'),
+    ('Τουτ\' οι μπάτσοι', 'tout_oi_mpatsoi'),
+    ('Γιατί φουμάρω κοκαΐνη', 'giati_foumaro_kokaini'),
+])
+def test_greeklish(string, expected):
+    assert greeklish(string) == expected

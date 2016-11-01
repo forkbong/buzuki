@@ -14,6 +14,6 @@ def get_artists():
     count = Counter(artists)
     return [{
         'name': artist,
-        'slug': greeklish(artist, sep='_'),
+        'slug': greeklish(artist),
         'num': count[artist]
     } for artist in count]
