@@ -6,7 +6,7 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 
 from buzuki.artists import get_artists
 from buzuki.songs import Song
-from buzuki.utils import transpose
+from buzuki.utils import transpose, unaccented
 
 main = Blueprint('main', __name__)
 
@@ -89,7 +89,7 @@ def search():
 
     query = query.strip()
     songs = [song for song in Song.all()
-             if query.lower() in song.name.lower()]
+             if unaccented(query) in unaccented(song.name)]
 
     if len(songs) > 1:
         return render_template(
