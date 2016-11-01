@@ -1,7 +1,7 @@
 from collections import Counter
 
 from buzuki.songs import Song
-from buzuki.utils import greeklish
+from buzuki.utils import greeklish, unaccented
 
 
 def get_artists():
@@ -12,8 +12,11 @@ def get_artists():
     """
     artists = [song.artist for song in Song.all()]
     count = Counter(artists)
-    return [{
+    artists = [{
         'name': artist,
         'slug': greeklish(artist),
         'num': count[artist]
     } for artist in count]
+    # Sort and ignore accents
+    artists.sort(key=lambda artist: unaccented(artist['name'].split()[-1]))
+    return artists

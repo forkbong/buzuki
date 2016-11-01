@@ -4,7 +4,7 @@ from urllib.parse import parse_qs, urlparse
 from flask import abort
 from flask import current_app as app
 
-from buzuki.utils import greeklish
+from buzuki.utils import greeklish, unaccented
 
 
 class Song:
@@ -39,6 +39,8 @@ class Song:
             assert os.path.isfile(path)
             song = cls.fromfile(path)
             songs.append(song)
+        # Sort and ignore accents
+        songs.sort(key=lambda song: unaccented(song.name))
         return songs
 
     @property
