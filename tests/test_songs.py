@@ -1,6 +1,6 @@
 import pytest
 
-from buzuki.models import Song
+from buzuki.songs import Song
 
 
 @pytest.mark.parametrize('name, expected_repr, expected_slug', [

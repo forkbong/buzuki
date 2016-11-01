@@ -7,7 +7,7 @@
 {% block content %}
 
 <legend>
-  {{ song.artist }} - {{ song.name }}
+  <a href="{{ url_for('main.artist', slug=song.artist_slug) }}">{{ song.artist }}</a> - {{ song.name }}
   <span class=pull-right>
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
