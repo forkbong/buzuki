@@ -53,3 +53,9 @@ def greeklish(string: str) -> str:
     string = re.sub('[^a-z_]', '', string)
 
     return string
+
+
+def unaccented(string: str) -> str:
+    """Return `string` lowercase and not accented."""
+    table = str.maketrans('άέήίόύώϊΐ', 'αεηιουωιι')
+    return string.lower().translate(table)
