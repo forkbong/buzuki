@@ -31,7 +31,7 @@ def transpose(song: str, num: int) -> str:
     return '\n'.join(new_song)
 
 
-def greeklish(string, sep=None):
+def greeklish(string: str) -> str:
     """Create greeklish slugs."""
     string = string.lower()
 
@@ -44,18 +44,12 @@ def greeklish(string, sep=None):
     string = re.sub('ε[υύ]', 'eu', string)
 
     # Rest letters
-    gr_chars = 'αβγδεζηικλμνοπρσςτυφχωάέήίόύώϊΐ'
-    en_chars = 'avgdeziiklmnoprsstyfxoaeiioyoii'
+    gr_chars = 'αβγδεζηικλμνοπρσςτυφχωάέήίόύώϊΐ '
+    en_chars = 'avgdeziiklmnoprsstyfxoaeiioyoii_'
     table = str.maketrans(gr_chars, en_chars)
     string = string.translate(table)
 
-    # Separator
-    if sep is not None:
-        string = re.sub(' ', sep, string)
-
-    # Remove all the rest. Assumes separators are either
-    # spaces or underscores and should explicitly
-    # use `sep` if something else were possible.
-    string = re.sub('[^a-z_ ]', '', string)
+    # Remove all the rest.
+    string = re.sub('[^a-z_]', '', string)
 
     return string

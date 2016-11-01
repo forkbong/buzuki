@@ -3,19 +3,6 @@ import pytest
 from buzuki.songs import Song
 
 
-@pytest.mark.parametrize('name, expected_repr, expected_slug', [
-    ('ασδφ', 'asdf', 'asdf'),
-    ('τεστ τεστ', 'test test', 'test_test'),
-    ('Τουτ\' οι μπάτσοι', 'tout oi mpatsoi', 'tout_oi_mpatsoi'),
-    ('Γιατί φουμάρω κοκαΐνη', 'giati foumaro kokaini',
-     'giati_foumaro_kokaini'),
-])
-def test_repr_slug(client, name, expected_repr, expected_slug):
-    song = Song(name=name, artist='artist', link='link', body='body')
-    assert repr(song) == '<Song \'{}\'>'.format(expected_repr)
-    assert song.slug == expected_slug
-
-
 @pytest.mark.parametrize('body, expected', [
     ('asdf  \r\n  asdf  \r\n', 'asdf\n  asdf\n'),
     ('asdf\nasdf\n', 'asdf\nasdf\n'),

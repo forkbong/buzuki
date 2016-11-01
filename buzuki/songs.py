@@ -15,7 +15,7 @@ class Song:
         self.body = body
 
     def __repr__(self):
-        return '<Song %r>' % greeklish(self.name)
+        return '<Song %r>' % self.slug
 
     @classmethod
     def fromfile(cls, filename):
@@ -66,17 +66,6 @@ class Song:
             return None
 
     @property
-    def name(self):
-        """Name getter."""
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        """When setting name also set slug."""
-        self._name = value
-        self.slug = greeklish(value, sep='_')
-
-    @property
     def body(self):
         """Body getter."""
         return self._body
@@ -89,8 +78,12 @@ class Song:
         self._body = '\n'.join(body)
 
     @property
+    def slug(self):
+        return greeklish(self.name)
+
+    @property
     def artist_slug(self):
-        return greeklish(self.artist, sep='_')
+        return greeklish(self.artist)
 
     def tofile(self):
         directory = app.config['SONGDIR']
