@@ -1,7 +1,7 @@
 import pytest
 
 from buzuki import create_app
-from buzuki.models import Song
+from buzuki.songs import Song
 
 
 @pytest.fixture(scope='function')

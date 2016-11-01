@@ -1,6 +1,6 @@
 from flask import url_for
 
-from buzuki.models import Song
+from buzuki.songs import Song
 
 
 class TestLogin:

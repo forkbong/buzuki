@@ -88,6 +88,10 @@ class Song:
         body = [line.rstrip() for line in body.split('\n')]
         self._body = '\n'.join(body)
 
+    @property
+    def artist_slug(self):
+        return greeklish(self.artist, sep='_')
+
     def tofile(self):
         directory = app.config['SONGDIR']
         os.makedirs(directory, mode=0o755, exist_ok=True)

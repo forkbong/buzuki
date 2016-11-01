@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 
+{% block title %}
+Καλλιτέχνες - {{ super() }}
+{%- endblock %}
+
 {% block content %}
 
 <legend>
-  Τραγούδια
+  Καλλιτέχνες
   <span class=pull-right>
     {% if admin %}
     <a href="{{ url_for('admin.index') }}"><span class="glyphicon glyphicon-king" aria-hidden="true"></span></a>
@@ -14,10 +18,10 @@
 
 <div class="row">
   <div class="list-group">
-    {% for song in songs %}
+    {% for artist in artists %}
     <div class="col-md-6">
-      <a href="{{ url_for('main.song', slug=song.slug) }}" class="list-group-item">
-        {{ song.artist }} - {{ song.name }}
+      <a href="{{ url_for('main.artist', slug=artist.slug) }}" class="list-group-item">
+        {{ artist.name }} ({{ artist.num }})
       </a>
     </div>
     {% endfor %}

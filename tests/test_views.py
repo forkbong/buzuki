@@ -1,6 +1,6 @@
 from flask import url_for
 
-from buzuki.models import Song
+from buzuki.songs import Song
 from buzuki.views import prepare_song
 
 
