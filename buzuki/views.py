@@ -1,8 +1,10 @@
 import re
 
-from flask import Blueprint, render_template, session
+from flask import (Blueprint, abort, redirect, render_template, request,
+                   session, url_for)
 
-from buzuki.models import Song
+from buzuki.artists import get_artists
+from buzuki.songs import Song
 from buzuki.utils import transpose
 
 main = Blueprint('main', __name__)
@@ -50,6 +52,55 @@ def songprint(slug, semitones=0):
     """A song in a printable form."""
     song = prepare_song(slug, semitones)
     return render_template('songprint.html', song=song)
+
+
+@main.route('/artists/')
+def artists():
+    """A list of all artists in the database."""
+    return render_template(
+        'artists.html',
+        artists=get_artists(),
+        admin=session.get('logged_in'),
+    )
+
+
+@main.route('/artists/<slug>/')
+def artist(slug):
+    """A list of all songs from given artist."""
+    songs = [song for song in Song.all()
+             if song.artist_slug == slug]
+
+    if len(songs) == 1:
+        return redirect(url_for('main.song', slug=songs[0].slug))
+
+    return render_template(
+        'index.html',
+        songs=songs,
+        admin=session.get('logged_in'),
+    )
+
+
+@main.route('/search/')
+def search():
+    query = request.args.get('q')
+    if not query:
+        return redirect(url_for('main.index'))
+
+    query = query.strip()
+    songs = [song for song in Song.all()
+             if query.lower() in song.name.lower()]
+
+    if len(songs) > 1:
+        return render_template(
+            'index.html',
+            songs=songs,
+            admin=session.get('logged_in'),
+        )
+
+    if len(songs) == 1:
+        return redirect(url_for('main.song', slug=songs[0].slug))
+
+    abort(404)
 
 
 @main.app_errorhandler(404)

@@ -4,7 +4,7 @@ from werkzeug.security import check_password_hash
 
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import login_required
-from buzuki.models import Song
+from buzuki.songs import Song
 from buzuki.utils import transpose
 
 admin = Blueprint('admin', __name__)
