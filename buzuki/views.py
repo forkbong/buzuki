@@ -29,6 +29,7 @@ def index():
     """A list of all songs in the database."""
     return render_template(
         'index.html',
+        title='Τραγούδια',
         songs=Song.all(),
         admin=session.get('logged_in'),
     )
@@ -76,6 +77,7 @@ def artist(slug):
 
     return render_template(
         'index.html',
+        title=songs[0].artist,
         songs=songs,
         admin=session.get('logged_in'),
     )
@@ -94,6 +96,7 @@ def search():
     if len(songs) > 1:
         return render_template(
             'index.html',
+            title=query,
             songs=songs,
             admin=session.get('logged_in'),
         )
