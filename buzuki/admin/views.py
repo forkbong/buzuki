@@ -1,3 +1,5 @@
+import re
+
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, session, url_for)
 from werkzeug.security import check_password_hash
@@ -5,7 +7,7 @@ from werkzeug.security import check_password_hash
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import login_required
 from buzuki.songs import Song
-from buzuki.utils import transpose
+from buzuki.utils import transpose, transpose_to_root
 
 admin = Blueprint('admin', __name__)
 
@@ -43,13 +45,17 @@ def add():
 
 
 @admin.route('/save/<slug>/<int:semitones>')
+@admin.route('/save/<slug>/<root>')
 @login_required
-def save(slug, semitones):
+def save(slug, semitones=None, root=None):
     """Save a transposed song to the database."""
     # FIXME: Small duplication with views.py
     song = Song.fromfile(slug)
     if semitones is not None:
         song.body = transpose(song.body, semitones)
+    elif root is not None:
+        root = re.sub('s', '#', root)
+        song.body = transpose_to_root(song.body, root)
     song.tofile()
     return redirect(url_for('main.song', slug=song.slug))
 

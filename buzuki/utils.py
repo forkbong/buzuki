@@ -1,7 +1,19 @@
 import re
 
+from flask import abort
+
 SHARPS = ['D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#']
 FLATS = ['D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B', 'C', 'Db']
+
+
+def distance(note: str) -> int:
+    """Return the distance of the note from D, in semitones.
+
+    Does not work with double sharps/flats.
+    """
+    if note in SHARPS:
+        return SHARPS.index(note)
+    return FLATS.index(note)
 
 
 def transpose(song: str, num: int) -> str:
@@ -29,6 +41,17 @@ def transpose(song: str, num: int) -> str:
         new_line = re.sub(pattern, chordrepl, line)
         new_song.append(new_line.rstrip())
     return '\n'.join(new_song)
+
+
+def transpose_to_root(song: str, root: str) -> str:
+    """Transpose `song` to `root`."""
+    # NOTE: songs should start with the root and scale (e.g. D  Νιαβέντ)
+    old_root = song[0:2].strip()
+    try:
+        diff = distance(root) - distance(old_root)
+    except KeyError:
+        abort(404)
+    return transpose(song, diff)
 
 
 def greeklish(string: str) -> str:

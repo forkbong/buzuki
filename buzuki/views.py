@@ -6,16 +6,19 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 
 from buzuki.artists import get_artists
 from buzuki.songs import Song
-from buzuki.utils import transpose, unaccented
+from buzuki.utils import transpose, transpose_to_root, unaccented
 
 main = Blueprint('main', __name__)
 
 
-def prepare_song(slug, semitones=0):
+def prepare_song(slug, semitones=None, root=None):
     """Transpose song and use unicode signs."""
     song = Song.fromfile(slug)
-    if semitones != 0:
+    if semitones is not None:
         song.body = transpose(song.body, semitones)
+    elif root is not None:
+        root = re.sub('s', '#', root)
+        song.body = transpose_to_root(song.body, root)
     # FIXME: We assume that songs are greek
     # and there will be no 'b' in lyrics.
     song.body = re.sub('b', '♭', song.body)
@@ -37,22 +40,25 @@ def index():
 
 @main.route('/songs/<slug>/')
 @main.route('/songs/<slug>/<int:semitones>')
-def song(slug, semitones=0):
+@main.route('/songs/<slug>/<root>')
+def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
-    song = prepare_song(slug, semitones)
+    song = prepare_song(slug, semitones, root)
     return render_template(
         'song.html',
         song=song,
         semitones=semitones,
+        root=root,
         admin=session.get('logged_in'),
     )
 
 
 @main.route('/songs/<slug>/print')
 @main.route('/songs/<slug>/<int:semitones>/print')
-def songprint(slug, semitones=0):
+@main.route('/songs/<slug>/<root>/print')
+def songprint(slug, semitones=None, root=None):
     """A song in a printable form."""
-    song = prepare_song(slug, semitones)
+    song = prepare_song(slug, semitones, root)
     return render_template('songprint.html', song=song)
 
 
