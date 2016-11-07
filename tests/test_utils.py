@@ -2,7 +2,25 @@ from textwrap import dedent
 
 import pytest
 
-from buzuki.utils import greeklish, transpose
+from buzuki.utils import distance, greeklish, transpose
+
+
+def test_distance():
+    assert distance('D') == 0
+    assert distance('D#') == 1
+    assert distance('E') == 2
+    assert distance('F') == 3
+    assert distance('F#') == 4
+    assert distance('Eb') == 1
+    assert distance('Gb') == 4
+    with pytest.raises(ValueError):
+        distance('E#')
+    with pytest.raises(ValueError):
+        distance('Fb')
+    with pytest.raises(ValueError):
+        distance('G##')
+    with pytest.raises(ValueError):
+        distance('asdf')
 
 
 class TestTraspose:
