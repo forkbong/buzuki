@@ -24,3 +24,5 @@ def test_prepare_song(client):
     assert prepare_song('name_b').body == 'E♭'
     assert prepare_song('name_a', semitones=-2).body == 'C♯'
     assert prepare_song('name_b', semitones=-2).body == 'D♭'
+    assert prepare_song('name_a', root='B').body == 'B'
+    assert prepare_song('name_b', root='B').body == 'B'
