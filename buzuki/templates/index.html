@@ -7,7 +7,7 @@
 {% block content %}
 
 <legend>
-  Τραγούδια
+  {{ title }}
   <span class=pull-right>
     {% if admin %}
     <a href="{{ url_for('admin.index') }}"><span class="glyphicon glyphicon-king" aria-hidden="true"></span></a>
@@ -21,7 +21,7 @@
     {% for song in songs %}
     <div class="col-md-6">
       <a href="{{ url_for('main.song', slug=song.slug) }}" class="list-group-item">
-        {{ song.artist }} - {{ song.name }}
+        {{ song.name }}
       </a>
     </div>
     {% endfor %}
