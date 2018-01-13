@@ -1,9 +1,12 @@
+import json
 import re
+from secrets import choice
 
 from flask import (Blueprint, abort, redirect, render_template, request,
                    session, url_for)
 
 from buzuki.artists import get_artists
+from buzuki.decorators import add_slug_to_cookie
 from buzuki.songs import Song
 from buzuki.utils import transpose, transpose_to_root, unaccented
 
@@ -40,6 +43,7 @@ def index():
 @main.route('/songs/<slug>/')
 @main.route('/songs/<slug>/<int:semitones>')
 @main.route('/songs/<slug>/<root>')
+@add_slug_to_cookie
 def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
     song = prepare_song(slug, semitones, root)
@@ -59,6 +63,21 @@ def songprint(slug, semitones=None, root=None):
     """A song in a printable form."""
     song = prepare_song(slug, semitones, root)
     return render_template('songprint.html', song=song)
+
+
+@main.route('/random/')
+def random():
+    """Redirect to a random song.
+
+    The last accessed songs, which are located in the 'latest_songs' cookie,
+    via the `add_slug_to_cookie` decorator, are excluded from the selection.
+    """
+    cookie = request.cookies.get('latest_songs')
+    latest_songs = json.loads(cookie) if cookie else []
+    song = choice([
+        song for song in Song.all() if song.slug not in latest_songs
+    ])
+    return redirect(url_for('main.song', slug=song.slug))
 
 
 @main.route('/artists/')
