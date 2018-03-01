@@ -85,6 +85,7 @@ def artists():
     """A list of all artists in the database."""
     return render_template(
         'artists.html',
+        title='Καλλιτέχνες',
         artists=get_artists(),
         admin=session.get('logged_in'),
     )

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block title %}
-Καλλιτέχνες - {{ super() }}
+{{ title }} - {{ super() }}
 {%- endblock %}
 
 {% block content %}
 
 <legend>
-  Καλλιτέχνες
+  {{ title }}
   <span class=pull-right>
     {% if admin %}
     <a href="{{ url_for('admin.index') }}"><span class="glyphicon glyphicon-king" aria-hidden="true"></span></a>
