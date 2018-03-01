@@ -129,6 +129,20 @@ def search():
     if len(songs) == 1:
         return redirect(url_for('main.song', slug=songs[0].slug))
 
+    artists = [artist for artist in get_artists()
+               if unaccented(query) in unaccented(artist['name'])]
+
+    if len(artists) > 1:
+        return render_template(
+            'artists.html',
+            title=query,
+            artists=artists,
+            admin=session.get('logged_in'),
+        )
+
+    if len(artists) == 1:
+        return redirect(url_for('main.artist', slug=artists[0]['slug']))
+
     abort(404)
 
 
