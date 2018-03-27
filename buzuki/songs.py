@@ -34,6 +34,8 @@ class Song:
         """Get all songs from the database."""
         songs = []
         directory = app.config['SONGDIR']
+        if not os.path.isdir(directory):
+            return songs
         for filename in os.listdir(directory):
             path = os.path.join(directory, filename)
             assert os.path.isfile(path)
@@ -103,5 +105,7 @@ class Song:
     @staticmethod
     def delete_all():
         directory = app.config['SONGDIR']
+        if not os.path.isdir(directory):
+            return
         for file in os.scandir(directory):
             os.remove(file.path)
