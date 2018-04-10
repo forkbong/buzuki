@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
+{% set admin=True %}
+
 {% block title %}
-Admin - {{ super() }}
+{{ title }} · {{ super() }}
 {%- endblock %}
 
 {% block content %}
-<legend>{{ legend }}</legend>
 {% from "admin/formhelpers.html" import render_field, render_button %}
-<form method="post" action="{{ action }}" class="form-horizontal">
+<form method="post" action="{{ action }}">
   {{ form.csrf_token }}
   {{ render_field(form.name) }}
   {{ render_field(form.artist) }}

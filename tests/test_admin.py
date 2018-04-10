@@ -37,7 +37,7 @@ class TestLogin:
         )
         with client.session_transaction() as session:
             assert 'next_url' not in session
-        assert b'Admin panel' in resp.data
+        assert b'Admin' in resp.data
 
     def test_wrong_password(self, client):
         resp = client.post(
