@@ -14,6 +14,27 @@ footer {
 }
 
 textarea {
-  font-family: monospace;
+  font-family: 'DejaVu Sans Mono', monospace;
+  line-height: 17px;
+  font-size: 15px;
   resize: none;
+}
+
+pre {
+  font-family: 'DejaVu Sans Mono', monospace;
+  line-height: 17px;
+  font-size: 15px;
+  min-height: 100%;  /* Remove scrollbar */
+}
+
+a {
+  color: #212529;
+}
+
+a:hover {
+  color: #212529;
+}
+
+div.no-underline a:hover {
+  text-decoration: none;
 }

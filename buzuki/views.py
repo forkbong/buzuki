@@ -106,6 +106,7 @@ def artist(slug):
         title=songs[0].artist,
         songs=songs,
         admin=session.get('logged_in'),
+        artist=True,
     )
 
 

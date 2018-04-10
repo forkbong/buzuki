@@ -1,31 +1,15 @@
 {% extends "base.html" %}
 
 {% block title %}
-{{ title }} - {{ super() }}
+{{ title }} · {{ super() }}
 {%- endblock %}
 
 {% block content %}
-
-<legend>
-  {{ title }}
-  <span class=pull-right>
-    {% if admin %}
-    <a href="{{ url_for('admin.index') }}"><span class="glyphicon glyphicon-king" aria-hidden="true"></span></a>
-    <a href="{{ url_for('admin.logout') }}"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
-    {% endif %}
-  </span>
-</legend>
-
-<div class="row">
-  <div class="list-group">
-    {% for artist in artists %}
-    <div class="col-md-6">
-      <a href="{{ url_for('main.artist', slug=artist.slug) }}" class="list-group-item">
-        {{ artist.name }} ({{ artist.num }})
-      </a>
-    </div>
-    {% endfor %}
-  </div>
+{% for artist in artists %}
+<div>
+  <a href="{{ url_for('main.artist', slug=artist.slug) }}">
+    {{ artist.name }} ({{ artist.num }})
+  </a>
 </div>
-
+{% endfor %}
 {% endblock %}
