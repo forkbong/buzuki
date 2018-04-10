@@ -15,9 +15,14 @@ admin = Blueprint('admin', __name__)
 @admin.route('/')
 @login_required
 def index():
-    """Simple CRUD interface."""
+    """A list of all songs in the database."""
     songs = Song.all()
-    return render_template('admin/admin.html', songs=songs)
+    return render_template(
+        'index.html',
+        title='Admin',
+        songs=songs,
+        admin=True,
+    )
 
 
 @admin.route('/add/', methods=['GET', 'POST'])
@@ -26,21 +31,24 @@ def add():
     """Add a new song to the database."""
     form = SongForm(request.form)
 
-    if request.method == 'POST' and form.validate():
-        song = Song(
-            name=form.name.data,
-            artist=form.artist.data,
-            body=form.body.data,
-            link=form.link.data,
-        )
-        song.tofile()
-        return redirect(url_for('main.song', slug=song.slug))
+    if request.method == 'POST':
+        if not form.validate():
+            flash("All fields are required.", 'danger')
+        else:
+            song = Song(
+                name=form.name.data,
+                artist=form.artist.data,
+                body=form.body.data,
+                link=form.link.data,
+            )
+            song.tofile()
+            return redirect(url_for('main.song', slug=song.slug))
 
     return render_template(
         'admin/songform.html',
         form=form,
         action=url_for('admin.add'),
-        legend="Νέο τραγούδι",
+        title="Νέο τραγούδι",
     )
 
 
@@ -84,7 +92,7 @@ def edit(slug):
         'admin/songform.html',
         form=form,
         action=url_for('admin.edit', slug=slug),
-        legend=song.name,
+        title=song.name,
     )
 
 
@@ -92,6 +100,7 @@ def edit(slug):
 @login_required
 def delete(slug):
     song = Song.fromfile(slug)
+    # FIXME: song is never None because Song.fromfile raises 404
     if song is not None:
         song.delete()
     else:

@@ -1,31 +1,26 @@
 {% extends "base.html" %}
 
 {% block title %}
-{{ title }} - {{ super() }}
+{{ title }} · {{ super() }}
 {%- endblock %}
 
 {% block content %}
-
-<legend>
-  {{ title }}
-  <span class=pull-right>
-    {% if admin %}
-    <a href="{{ url_for('admin.index') }}"><span class="glyphicon glyphicon-king" aria-hidden="true"></span></a>
-    <a href="{{ url_for('admin.logout') }}"><span class="glyphicon glyphicon-off" aria-hidden="true"></span></a>
-    {% endif %}
-  </span>
-</legend>
-
+{% for song in songs %}
 <div class="row">
-  <div class="list-group">
-    {% for song in songs %}
-    <div class="col-md-6">
-      <a href="{{ url_for('main.song', slug=song.slug) }}" class="list-group-item">
-        {{ song.name }}
+  {% if not artist %}
+  <div class="d-none d-md-block col-md-5 col-lg-3">
+    <span class="float-right" style="font-weight:bold">
+      <a href="{{ url_for('main.artist', slug=song.artist_slug) }}">
+        {{ song.artist }}
       </a>
-    </div>
-    {% endfor %}
+    </span>
+  </div>
+  {% endif %}
+  <div class="col-sm-12 col-md-7 col-lg-9">
+    <a href="{{ url_for('main.song', slug=song.slug) }}">
+      {{ song.name }}
+    </a>
   </div>
 </div>
-
+{% endfor %}
 {% endblock %}
