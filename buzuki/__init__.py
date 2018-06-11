@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask
 from flask_wtf import CSRFProtect
 
@@ -12,6 +14,10 @@ def create_app(config_name='default'):
     app.config.from_object(config[config_name])
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
+
+    @app.context_processor
+    def current_year():
+        return {'current_year': datetime.utcnow().year}
 
     csrf.init_app(app)
 
