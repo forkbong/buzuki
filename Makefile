@@ -3,6 +3,9 @@
 init:
 	poetry install
 
+run:
+	FLASK_APP=buzuki FLASK_ENV=development flask run
+
 test:
 	isort --check-only .
 	flake8 buzuki tests *.py
@@ -16,4 +19,4 @@ coverage:
 report: coverage
 	$(BROWSER) htmlcov/index.html
 
-.PHONY: init test coverage report
+.PHONY: init run test coverage report
