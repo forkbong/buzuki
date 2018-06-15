@@ -7,8 +7,9 @@ from flask import (Blueprint, abort, redirect, render_template, request,
 
 from buzuki.artists import get_artists
 from buzuki.decorators import add_slug_to_cookie
+from buzuki.scales import Scale
 from buzuki.songs import Song
-from buzuki.utils import transpose, transpose_to_root, unaccented
+from buzuki.utils import to_unicode, transpose, transpose_to_root, unaccented
 
 main = Blueprint('main', __name__)
 
@@ -21,10 +22,7 @@ def prepare_song(slug, semitones=None, root=None):
     elif root is not None:
         root = re.sub('s', '#', root)
         song.body = transpose_to_root(song.body, root)
-    # FIXME: We assume that songs are greek
-    # and there will be no 'b' in lyrics.
-    song.body = re.sub('b', '♭', song.body)
-    song.body = re.sub('#', '♯', song.body)
+    song.body = to_unicode(song.body)
     return song
 
 
@@ -106,6 +104,37 @@ def artist(slug):
         songs=songs,
         admin=session.get('logged_in'),
         artist=True,
+    )
+
+
+@main.route('/scales/')
+def scales():
+    """The scale's notes and a list of all songs in that scale."""
+    return render_template(
+        'scales.html',
+        scales=Scale.all(),
+        admin=session.get('logged_in'),
+    )
+
+
+@main.route('/scales/<slug>/')
+@main.route('/scales/<slug>/<root>')
+def scale(slug, root='D'):
+    """A list of all available scales."""
+    if not re.match('^[A-G][bs]?$', root):
+        abort(404)
+    root = re.sub('s', '#', root)
+    try:
+        scale = Scale.get(slug)
+    except (ValueError, KeyError):
+        abort(404)
+    scale.root = root
+    songs = [song for song in Song.all() if scale.name in song.body]
+    return render_template(
+        'scale.html',
+        scale=scale,
+        songs=songs,
+        admin=session.get('logged_in'),
     )
 
 
