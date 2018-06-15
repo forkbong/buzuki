@@ -1,0 +1,94 @@
+matzore:
+  name: Ματζόρε
+  ascending: [0, 2, 4, 5, 7, 9, 11, 12]
+  chords: ['1', '4', '5']
+  structure: Τετράχορδο ραστ, τεράχορδο ραστ
+
+rast:
+  name: Ραστ
+  ascending: [0, 2, 4, 5, 7, 9, 11, 12]
+  descending: [0, 2, 4, 5, 7, 9, 10, 12]
+  chords: ['1', '2m', '4', '5']
+  structure: Τετράχορδο ραστ, τεράχορδο ραστ/μινόρε
+
+fysiko_minore:
+  name: Φυσικό Μινόρε
+  ascending: [0, 2, 3, 5, 7, 8, 10, 12]
+  chords: ['1m', '3', '4m', '5']
+  structure: Τετράχορδο μινόρε, πεντάχορδο μινόρε
+
+armoniko_minore:
+  name: 'Αρμονικό Μινόρε'
+  ascending: [0, 2, 3, 5, 7, 8, 11, 12]
+  chords: ['1m', '4m', '5']
+  structure: Πεντάχορδο μινόρε, τετράχορδο χιτζάζ
+
+xitzaz:
+  name: Χιτζάζ
+  ascending: [0, 1, 4, 5, 7, 8, 10, 12]
+  chords: ['1', '2', '4m', '7m']
+  structure: Τετράχορδο χιτζάζ, πεντάχορδο μινόρε
+
+xitzazkar:
+  name: Χιτζαζκάρ
+  ascending: [0, 1, 4, 5, 7, 8, 11, 12]
+  chords: ['1', '2', '4m', '5']
+  structure: Τετράχορδο χιτζάζ, τετράχορδο χιτζάζ
+
+peiraiotiko:
+  name: Πειραιώτικο
+  ascending: [0, 1, 4, 6, 7, 8, 11, 12]
+  chords: ['1']
+  structure: Χιτζαζκάρ με οξυμένη την 4η βαθμίδα
+
+ousak:
+  name: Ουσάκ
+  ascending: [0, 1, 3, 5, 7, 8, 10, 12]
+  chords: ['1m', '4m', '7m']
+  structure: Τετράχορδο ουσάκ, πεντάχορδο μινόρε
+
+karsigar:
+  name: Καρσιγάρ
+  ascending: [0, 2, 3, 5, 6, 9, 10, 12]
+  chords: ['1m', '3m', '4', '7', '7m']
+  structure: Τετράχορδο μινόρε, πεντάχορδο χιτζάζ
+
+sampax:
+  name: Σαμπάχ
+  ascending: [0, 2, 3, 4, 7, 8, 10, 12]
+  chords: ['1m', '3']
+  structure: Πεντάχορδο σαμπάχ, τετράχορδο ουσάκ
+
+nikriz:
+  name: Νικρίζ
+  ascending: [0, 2, 3, 6, 7, 9, 10, 12]
+  chords: ['1m', '4dim', '5']
+  structure: Πεντάχορδο νικρίζ, τετράχορδο μινόρε
+
+niavent:
+  name: Νιαβέντ
+  ascending: [0, 2, 3, 6, 7, 8, 11, 12]
+  chords: ['1m', '4dim', '5']
+  structure: Πεντάχορδο νικρίζ, τετράχορδο χιτζάζ
+
+xouzam:
+  name: Χουζάμ
+  ascending: [0, 3, 4, 5, 7, 8, 11, 12]
+  chords: ['1', '4m', '5']
+  structure: Πεντάχορδο χουζάμ, τετράχορδο χιτζάζ
+
+segkiax:
+  name: Σεγκιάχ
+  ascending: [0, 3, 4, 5, 7, 9, 11, 12]
+  chords: ['1', '4', '5']
+  structure: Πεντάχορδο χουζάμ, τετράχορδο ραστ
+
+souzinak:
+  name: Σουζινάκ
+  ascending: [0, 2, 4, 5, 7, 8, 11, 12]
+  structure: Τετράχορδο ραστ, τετράχορδο χιτζάζ
+
+kiournti:
+  name: Κιουρντί
+  ascending: [0, 2, 3, 5, 7, 9, 10, 12]
+  structure: Τετράχορδο μινόρε, πεντάχορδο ραστ
