@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% set title='Δρόμοι' %}
+
+{% block title %}
+{{ title }} · {{ super() }}
+{%- endblock %}
+
+{% block content %}
+{% for scale in scales %}
+<div>
+  <a href="{{ url_for('main.scale', slug=scale.slug) }}">
+    {{ scale.name }}
+  </a>
+</div>
+{% endfor %}
+{% endblock %}

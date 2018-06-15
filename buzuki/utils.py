@@ -82,3 +82,11 @@ def unaccented(string: str) -> str:
     """Return `string` lowercase and not accented."""
     table = str.maketrans('άέήίόύώϊΐ', 'αεηιουωιι')
     return string.lower().translate(table)
+
+
+def to_unicode(string: str) -> str:
+    """Use a dedicated unicode symbol for sharps and flats."""
+    # FIXME: We assume that songs are greek and there will be no 'b' in lyrics
+    string = re.sub('b', '♭', string)
+    string = re.sub('#', '♯', string)
+    return string

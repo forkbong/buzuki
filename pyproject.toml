@@ -13,6 +13,7 @@ repository = "https://gitlab.com/forkbong/buzuki"
 python = "^3.9"
 flask = "^2.1"
 flask-wtf = "^0.14.2"
+pyyaml = "^5.1"
 gunicorn = "^20.1"
 
 [tool.poetry.dev-dependencies]
