@@ -5,23 +5,7 @@
 {%- endblock %}
 
 {% block extra_nav %}
-<li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Τόνος</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown01">
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='D') }}">D</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='Ds') }}">D#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='E') }}">E</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='F') }}">F</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='Fs') }}">F#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='G') }}">G</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='Gs') }}">G#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='A') }}">A</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='As') }}">A#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='B') }}">B</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='C') }}">C</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.song', slug=song.slug, root='Cs') }}">C#</a>
-  </div>
-</li>
+{% include 'partials/transpose.html' %}
 {% endblock %}
 
 {% block header %}
@@ -50,7 +34,7 @@
 {% block content %}
 <div class="row">
   <div class="col-lg-7">
-    <pre>{{ song.body }}</pre>
+    <pre id="song-info">{{ song.body }}</pre>
   </div>
   {% if song.youtube_id %}
   <div class="col-lg-5">
@@ -63,4 +47,11 @@
   </div>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='transpose.js') }}"></script>
+<script>
+  transposeInit('/api/songs/{{ song.slug }}', '#song-info');
+</script>
 {% endblock %}

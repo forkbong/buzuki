@@ -1,10 +1,12 @@
 import os
+import re
 from urllib.parse import parse_qs, urlparse
 
 from flask import abort
 from flask import current_app as app
 
-from buzuki.utils import greeklish, unaccented
+from buzuki.utils import (greeklish, to_unicode, transpose, transpose_to_root,
+                          unaccented)
 
 
 class Song:
@@ -16,6 +18,26 @@ class Song:
 
     def __repr__(self):
         return '<Song %r>' % self.slug
+
+    @classmethod
+    def get(cls, slug, semitones=None, root=None, unicode=False):
+        """Load a song from file and optionally transpose it.
+
+        Args:
+            slug: The song's slug.
+            semitones: Transpose song by given semitones.
+            root: Transpose song to the given root.
+            unicode: Use unicode sharps and flats in the song's body.
+        """
+        song = cls.fromfile(filename=slug)
+        if semitones is not None:
+            song.body = transpose(song.body, semitones)
+        elif root is not None:
+            root = re.sub('s', '#', root)
+            song.body = transpose_to_root(song.body, root)
+        if unicode:
+            song.body = to_unicode(song.body)
+        return song
 
     @classmethod
     def fromfile(cls, filename):

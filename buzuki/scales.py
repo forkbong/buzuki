@@ -59,6 +59,10 @@ class Scale:
 
         return '\n\n'.join(stuff)
 
+    @property
+    def title(self):
+        return f'{to_unicode(self.root)} {self.name}'
+
     def notes(self, descending=False):
         """Return a string with the notes of the scale."""
         notes = self._get_notes(descending)

@@ -72,7 +72,7 @@ def test_add(client):
         },
         follow_redirects=True
     )
-    song = Song.fromfile('name')
+    song = Song.get('name')
     assert song.name == 'name'
 
 
@@ -85,7 +85,7 @@ def test_save_delete(client):
     url = url_for('admin.save', slug='name', semitones=1)
     resp = client.get(url, follow_redirects=True)
     assert resp.status_code == 200
-    song = Song.fromfile('name')
+    song = Song.get('name')
     assert song.body == 'Cm G  Cm'
     resp = client.get(url_for('admin.delete', slug='name'),
                       follow_redirects=True)

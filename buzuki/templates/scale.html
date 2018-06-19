@@ -4,32 +4,14 @@
 {{ scale.name }} · {{ super() }}
 {%- endblock %}
 
-{% block extra_nav %}
-<li class="nav-item dropdown">
-  <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Τόνος</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown01">
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='D') }}">D</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='Ds') }}">D#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='E') }}">E</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='F') }}">F</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='Fs') }}">F#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='G') }}">G</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='Gs') }}">G#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='A') }}">A</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='As') }}">A#</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='B') }}">B</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='C') }}">C</a>
-    <a class="dropdown-item" tabindex="-1" href="{{ url_for('main.scale', slug=scale.slug, root='Cs') }}">C#</a>
-  </div>
-</li>
-{% endblock %}
+{% block extra_nav %}{% include 'partials/transpose.html' %}{% endblock %}
 
 {% block header %}
 {{ scale.root }} {{ scale.name }}
 {%- endblock %}
 
 {% block content %}
-<pre>{{ scale.info }}</pre>
+<pre id="id="scale-info"">{{ scale.info }}</pre>
 {% for song in songs %}
 <div class="row">
   <div class="d-none d-md-block col-md-5 col-lg-3">
@@ -46,4 +28,11 @@
   </div>
 </div>
 {% endfor %}
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='transpose.js') }}"></script>
+<script>
+  transposeInit('/api/scales/{{ scale.slug }}', '#scale-info');
+</script>
 {% endblock %}
