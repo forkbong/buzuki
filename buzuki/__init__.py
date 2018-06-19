@@ -24,6 +24,9 @@ def create_app(config_name='default'):
     from buzuki.views import main
     app.register_blueprint(main)
 
+    from buzuki.api.views import api
+    app.register_blueprint(api, url_prefix='/api')
+
     from buzuki.admin.views import admin
     app.register_blueprint(admin, url_prefix='/admin')
 

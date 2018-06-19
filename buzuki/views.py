@@ -9,21 +9,9 @@ from buzuki.artists import get_artists
 from buzuki.decorators import add_slug_to_cookie
 from buzuki.scales import Scale
 from buzuki.songs import Song
-from buzuki.utils import to_unicode, transpose, transpose_to_root, unaccented
+from buzuki.utils import unaccented
 
 main = Blueprint('main', __name__)
-
-
-def prepare_song(slug, semitones=None, root=None):
-    """Transpose song and use unicode signs."""
-    song = Song.fromfile(slug)
-    if semitones is not None:
-        song.body = transpose(song.body, semitones)
-    elif root is not None:
-        root = re.sub('s', '#', root)
-        song.body = transpose_to_root(song.body, root)
-    song.body = to_unicode(song.body)
-    return song
 
 
 @main.route('/')
@@ -44,7 +32,10 @@ def index():
 @add_slug_to_cookie
 def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
-    song = prepare_song(slug, semitones, root)
+    try:
+        song = Song.get(slug, semitones=semitones, root=root, unicode=True)
+    except ValueError:
+        abort(404)
     return render_template(
         'song.html',
         song=song,
@@ -59,7 +50,10 @@ def song(slug, semitones=None, root=None):
 @main.route('/songs/<slug>/<root>/print')
 def songprint(slug, semitones=None, root=None):
     """A song in a printable form."""
-    song = prepare_song(slug, semitones, root)
+    try:
+        song = Song.get(slug, semitones=semitones, root=root, unicode=True)
+    except ValueError:
+        abort(404)
     return render_template('songprint.html', song=song)
 
 
