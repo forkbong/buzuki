@@ -40,7 +40,7 @@ def test_invalid_youtube_id(client, link):
 def test_database(client):
     song = Song(name='name', artist='artist', link='link', body='body')
     song.tofile()
-    song = Song.fromfile('name')
+    song = Song.get('name')
     assert song.name == 'name'
     assert song.artist == 'artist'
     assert song.link == 'link'
@@ -60,9 +60,9 @@ def test_tofile(client):
         )
 
 
-def test_fromfile(client):
+def test_get(client):
     Song(name='name', artist='artist', link='link', body='body').tofile()
-    song = Song.fromfile('name')
+    song = Song.get('name')
     assert song.name == 'name'
     assert song.artist == 'artist'
     assert song.link == 'link'
