@@ -1,11 +1,13 @@
 from datetime import datetime
 
 from flask import Flask
+from flask_caching import Cache
 from flask_wtf import CSRFProtect
 
 from config import config
 
 csrf = CSRFProtect()
+cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
 def create_app(config_name='default'):
@@ -20,6 +22,7 @@ def create_app(config_name='default'):
         return {'current_year': datetime.utcnow().year}
 
     csrf.init_app(app)
+    cache.init_app(app)
 
     from buzuki.views import main
     app.register_blueprint(main)

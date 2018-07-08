@@ -5,11 +5,10 @@ from secrets import choice
 from flask import (Blueprint, abort, redirect, render_template, request,
                    session, url_for)
 
-from buzuki.artists import get_artists
+from buzuki.artists import get_artists, search_artists
 from buzuki.decorators import add_slug_to_cookie
 from buzuki.scales import Scale
 from buzuki.songs import Song
-from buzuki.utils import unaccented
 
 main = Blueprint('main', __name__)
 
@@ -138,9 +137,9 @@ def search():
     if not query:
         return redirect(url_for('main.index'))
 
-    query = query.strip()
-    songs = [song for song in Song.all()
-             if unaccented(query) in unaccented(song.name)]
+    songs = list(Song.search(query))
+    songs.extend(song for song in Song.search_bodies(query)
+                 if song not in songs)
 
     if len(songs) > 1:
         return render_template(
@@ -153,8 +152,7 @@ def search():
     if len(songs) == 1:
         return redirect(url_for('main.song', slug=songs[0].slug))
 
-    artists = [artist for artist in get_artists()
-               if unaccented(query) in unaccented(artist['name'])]
+    artists = list(search_artists(query))
 
     if len(artists) > 1:
         return render_template(
