@@ -1,8 +1,10 @@
 import logging
 import re
+from itertools import islice
 
 from flask import Blueprint, abort, jsonify
 
+from buzuki.artists import search_artists
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -51,6 +53,27 @@ def scale(slug, root='D'):
         'title': scale.title,
         'info': scale.info,
     })
+
+
+@api.route('/search/<query>/')
+def search(query):
+    """A list with at most 15 results that match the query."""
+
+    def do_search(query):
+        """Yield songs that match the given query.
+
+        Searches in song names first, and then artist names.
+        We skip search in song bodies for performance.
+        """
+        matched_by_title = []
+        for song in Song.search(query):
+            matched_by_title.append(song.name)
+            yield song.name
+
+        for artist in search_artists(query):
+            yield artist['name']
+
+    return jsonify(list(islice(do_search(query), 15)))
 
 
 @api.route('/<path>', strict_slashes=False)

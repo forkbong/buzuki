@@ -5,6 +5,7 @@ from urllib.parse import parse_qs, urlparse
 from flask import abort
 from flask import current_app as app
 
+from buzuki import cache
 from buzuki.utils import (greeklish, to_unicode, transpose, transpose_to_root,
                           unaccented)
 
@@ -18,6 +19,12 @@ class Song:
 
     def __repr__(self):
         return '<Song %r>' % self.slug
+
+    def __eq__(self, other):
+        """Test instance equality by comparing slugs."""
+        if isinstance(other, Song):
+            return self.slug == other.slug
+        return False
 
     @classmethod
     def get(cls, slug, semitones=None, root=None, unicode=False):
@@ -53,6 +60,7 @@ class Song:
         return cls(name=name, artist=artist, link=link, body=body.strip('\n'))
 
     @classmethod
+    @cache.memoize(timeout=60)
     def all(cls):
         """Get all songs from the database."""
         songs = []
@@ -119,11 +127,13 @@ class Song:
         with open(path, 'w') as f:
             content = [self.name, self.artist, self.link, '', self.body, '']
             f.write('\n'.join(content))
+        cache.delete_memoized(Song.all)
 
     def delete(self):
         directory = app.config['SONGDIR']
         path = os.path.join(directory, self.slug)
         os.remove(path)
+        cache.delete_memoized(Song.all)
 
     @staticmethod
     def delete_all():
@@ -132,3 +142,19 @@ class Song:
             return
         for file in os.scandir(directory):
             os.remove(file.path)
+        cache.delete_memoized(Song.all)
+
+    @classmethod
+    def search(cls, query):
+        query = unaccented(query.strip())
+        slug_query = re.sub(r'\s+', '_', query)
+        for song in cls.all():
+            if query in unaccented(song.name) or slug_query in song.slug:
+                yield song
+
+    @classmethod
+    def search_bodies(cls, query):
+        query = unaccented(query.strip())
+        for song in cls.all():
+            if query in unaccented(song.body):
+                yield song
