@@ -4,15 +4,12 @@
 {{ song.name }} · {{ super() }}
 {%- endblock %}
 
-{% block extra_nav %}
-{% include 'partials/transpose.html' %}
-{% endblock %}
-
 {% block header %}
 <a href="{{ url_for('main.artist', slug=song.artist_slug) }}">{{ song.artist }}</a> - {{ song.name }}
 {%- endblock %}
 
 {% block extra_header %}
+{% include 'partials/transpose.html' %}
 <a href="{{ url_for('main.songprint', slug=song.slug, semitones=semitones, root=root) }}" title="Print">
   <i class="fa fa-print" aria-hidden="true"></i>
 </a>

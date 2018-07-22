@@ -4,11 +4,13 @@
 {{ scale.name }} · {{ super() }}
 {%- endblock %}
 
-{% block extra_nav %}{% include 'partials/transpose.html' %}{% endblock %}
-
 {% block header %}
 {{ scale.root }} {{ scale.name }}
 {%- endblock %}
+
+{% block extra_header %}
+{% include 'partials/transpose.html' %}
+{% endblock %}
 
 {% block content %}
 <pre id="id="scale-info"">{{ scale.info }}</pre>
