@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+import sys
 from multiprocessing import cpu_count
 
 import click
-from flask.cli import FlaskGroup
+import IPython
+from flask import current_app as app
+from flask.cli import FlaskGroup, with_appcontext
 from gunicorn.app.base import BaseApplication
+from IPython.terminal.ipapp import load_default_config
 
 from buzuki import create_app
 
@@ -12,6 +16,35 @@ from buzuki import create_app
 @click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
 def cli():
     """Management script for buzuki."""
+
+
+@cli.command(context_settings=dict(ignore_unknown_options=True))
+@click.argument('ipython_args', nargs=-1, type=click.UNPROCESSED)
+@with_appcontext
+def shell(ipython_args):
+    """Run a shell in the app context.
+
+    Runs an interactive Python shell in the context of a given Flask
+    application. The application will populate the default namespace of this
+    shell according to it's configuration.
+
+    This is useful for executing small snippets of management code without
+    having to manually configuring the application.
+    """
+    # See: https://github.com/ei-grad/flask-shell-ipython
+    config = load_default_config()
+    config.TerminalInteractiveShell.banner1 = (
+        f"Python {sys.version} on {sys.platform}\n"
+        f"IPython: {IPython.__version__}\n"
+        f"App: {app.import_name} [{app.env}]\n"
+        f"Instance: {app.instance_path}\n"
+    )
+
+    IPython.start_ipython(
+        argv=ipython_args,
+        user_ns=app.make_shell_context(),
+        config=config,
+    )
 
 
 @cli.command()

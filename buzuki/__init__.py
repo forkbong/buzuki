@@ -21,6 +21,16 @@ def create_app(config_name='default'):
     def current_year():
         return {'current_year': datetime.utcnow().year}
 
+    @app.shell_context_processor
+    def shell_context():
+        from buzuki.scales import Scale
+        from buzuki.songs import Song
+        return {
+            'app': app,
+            'Song': Song,
+            'Scale': Scale,
+        }
+
     csrf.init_app(app)
     cache.init_app(app)
 
