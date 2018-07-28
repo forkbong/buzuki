@@ -5,7 +5,7 @@ from secrets import choice
 from flask import (Blueprint, abort, redirect, render_template, request,
                    session, url_for)
 
-from buzuki.artists import get_artists, search_artists
+from buzuki.artists import Artist
 from buzuki.decorators import add_slug_to_cookie
 from buzuki.scales import Scale
 from buzuki.songs import Song
@@ -77,7 +77,7 @@ def artists():
     return render_template(
         'artists.html',
         title='Καλλιτέχνες',
-        artists=get_artists(),
+        artists=Artist.all(),
         admin=session.get('logged_in'),
     )
 
@@ -85,16 +85,18 @@ def artists():
 @main.route('/artists/<slug>/')
 def artist(slug):
     """A list of all songs from given artist."""
-    songs = [song for song in Song.all()
-             if song.artist_slug == slug]
+    try:
+        artist = Artist(slug)
+    except IndexError:
+        abort(404)
 
-    if len(songs) == 1:
-        return redirect(url_for('main.song', slug=songs[0].slug))
+    if artist.num == 1:
+        return redirect(url_for('main.song', slug=artist.songs[0].slug))
 
     return render_template(
         'index.html',
-        title=songs[0].artist,
-        songs=songs,
+        title=artist.name,
+        songs=artist.songs,
         admin=session.get('logged_in'),
         artist=True,
     )
@@ -152,7 +154,7 @@ def search():
     if len(songs) == 1:
         return redirect(url_for('main.song', slug=songs[0].slug))
 
-    artists = list(search_artists(query))
+    artists = list(Artist.search(query))
 
     if len(artists) > 1:
         return render_template(
@@ -163,7 +165,7 @@ def search():
         )
 
     if len(artists) == 1:
-        return redirect(url_for('main.artist', slug=artists[0]['slug']))
+        return redirect(url_for('main.artist', slug=artists[0].slug))
 
     abort(404)
 
