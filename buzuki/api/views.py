@@ -4,7 +4,7 @@ from itertools import islice
 
 from flask import Blueprint, abort, jsonify
 
-from buzuki.artists import search_artists
+from buzuki.artists import Artist
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -70,8 +70,8 @@ def search(query):
             matched_by_title.append(song.name)
             yield song.name
 
-        for artist in search_artists(query):
-            yield artist['name']
+        for artist in Artist.search(query):
+            yield artist.name
 
     return jsonify(list(islice(do_search(query), 15)))
 

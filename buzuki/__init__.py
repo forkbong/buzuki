@@ -23,10 +23,12 @@ def create_app(config_name='default'):
 
     @app.shell_context_processor
     def shell_context():
+        from buzuki.artists import Artist
         from buzuki.scales import Scale
         from buzuki.songs import Song
         return {
             'app': app,
+            'Artist': Artist,
             'Song': Song,
             'Scale': Scale,
         }
