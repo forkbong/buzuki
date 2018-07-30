@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import os
+import subprocess
 import sys
 from multiprocessing import cpu_count
 
@@ -11,6 +13,7 @@ from gunicorn.app.base import BaseApplication
 from IPython.terminal.ipapp import load_default_config
 
 from buzuki import create_app
+from buzuki.songs import Song
 
 
 @click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
@@ -65,6 +68,43 @@ def gunicorn(workers, host, port):
             return create_app()
 
     GunicornApplication().run()
+
+
+@cli.command()
+@click.option('-o', '--output', help="Target directory.", default='videos')
+def download(output):
+    """Download all youtube videos."""
+
+    def should_download(song):
+        """Return whether the song's video needs to be downloaded."""
+        for file in os.listdir(output):
+            base, extension = os.path.splitext(file)
+            if base == f'{song.slug}_{song.youtube_id}':
+                return False
+        return True
+
+    songs = Song.all()
+
+    with click.progressbar(
+        [song for song in songs if should_download(song)],
+        label="Downloading video files",
+        item_show_func=lambda item: getattr(item, 'name', ''),
+    ) as bar:
+        for song in bar:
+            subprocess.run([
+                'youtube-dl',
+                '--quiet',
+                '--no-warnings',
+                '--output',
+                os.path.join(output, f'{song.slug}_{song.youtube_id}'),
+                song.link,
+            ])
+
+    for file in os.listdir(output):
+        base, extension = os.path.splitext(file)
+        if not any(base == f'{song.slug}_{song.youtube_id}' for song in songs):
+            if click.confirm(f"{file} does not match any song. Delete?"):
+                os.unlink(os.path.join(output, file))
 
 
 if __name__ == '__main__':
