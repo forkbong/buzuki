@@ -12,6 +12,7 @@ from flask.cli import FlaskGroup, with_appcontext
 from gunicorn.app.base import BaseApplication
 from gunicorn.config import Config as GunicornConfig
 from IPython.terminal.ipapp import load_default_config
+from werkzeug.security import generate_password_hash
 
 from buzuki import create_app
 from buzuki.songs import Song
@@ -107,6 +108,13 @@ def download(output):
         if not any(base == f'{song.slug}_{song.youtube_id}' for song in songs):
             if click.confirm(f"{file} does not match any song. Delete?"):
                 os.unlink(os.path.join(output, file))
+
+
+@cli.command()
+@click.argument('password')
+def hash(password):
+    """Generate password hash."""
+    click.echo(generate_password_hash(password))
 
 
 if __name__ == '__main__':
