@@ -3,13 +3,13 @@ import json
 import pytest
 from flask import url_for
 
-from buzuki.songs import Song
+from tests.factories import SongFactory
 
 
 @pytest.fixture(scope='function')
 def db():
-    song1 = Song(name='name_a', artist='artist', link='link', body='D#')
-    song2 = Song(name='name_b', artist='artist', link='link', body='Eb')
+    song1 = SongFactory(name='name_a', body='D#')
+    song2 = SongFactory(name='name_b', body='Eb')
     song1.tofile()
     song2.tofile()
 
@@ -27,7 +27,7 @@ def test_api_song(client, db):
     assert resp.mimetype == 'application/json'
     assert resp.data.decode('unicode-escape') == (
         '{"artist":"artist"'
-        ',"info":"D♯"'
+        ',"info":"scale\n\nrhythm\n\nD♯"'
         ',"link":"link"'
         ',"name":"name_a"}\n'
     )

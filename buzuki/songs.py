@@ -4,17 +4,21 @@ from urllib.parse import parse_qs, urlparse
 
 from flask import abort
 from flask import current_app as app
+from flask import url_for
 
 from buzuki import cache
+from buzuki.scales import Scale
 from buzuki.utils import (greeklish, to_unicode, transpose, transpose_to_root,
                           unaccented)
 
 
 class Song:
-    def __init__(self, name, artist, link, body):
+    def __init__(self, name, artist, link, scale, rhythm, body):
         self.name = name
         self.artist = artist
         self.link = link
+        self.scale = scale
+        self.rhythm = rhythm
         self.body = body
 
     def __repr__(self):
@@ -39,12 +43,17 @@ class Song:
         song = cls.fromfile(filename=slug)
         assert song.body is not None
         if semitones is not None:
+            song.scale = transpose(song.scale, semitones)
             song.body = transpose(song.body, semitones)
         elif root is not None:
             root = re.sub('s', '#', root)
-            song.body = transpose_to_root(song.body, root)
+            old_root = song.scale[0:2].strip()
+            song.scale = transpose_to_root(song.scale, old_root, root)
+            song.body = transpose_to_root(song.body, old_root, root)
         if unicode:
+            song.scale = to_unicode(song.scale)
             song.body = to_unicode(song.body)
+
         return song
 
     @classmethod
@@ -56,8 +65,10 @@ class Song:
                 file = f.read()
         except FileNotFoundError:
             abort(404)
-        name, artist, link, body = [x for x in file.split('\n', 3)]
-        return cls(name=name, artist=artist, link=link, body=body.strip('\n'))
+        name, artist, link, rest = [x for x in file.split('\n', 3)]
+        scale, rhythm, body = rest.strip('\n').split('\n\n', 2)
+        song = cls(name, artist, link, scale, rhythm, body)
+        return song
 
     @classmethod
     @cache.memoize(timeout=60)
@@ -100,6 +111,25 @@ class Song:
         else:
             return None
 
+    def info(self, html=False):
+        """Return all song information joined into a string.
+
+        Args:
+            html: Wrap scales in links to the scale page.
+        """
+        _scale = self.scale
+
+        if html:
+            root = _scale[0:2].strip()
+            root = re.sub('[#♯]', 's', root)
+            for scale in Scale.all():
+                if scale.name in _scale:
+                    url = url_for('main.scale', slug=scale.slug, root=root)
+                    href = f'<a href="{url}">{scale.name}</a>'
+                    _scale = _scale.replace(scale.name, href)
+
+        return '\n\n'.join([_scale, self.rhythm, self._body])
+
     @property
     def body(self):
         """Body getter."""
@@ -108,7 +138,7 @@ class Song:
     @body.setter
     def body(self, value):
         """No trailing witespace and unix end-of-line characters."""
-        body = value.replace('\r\n', '\n')
+        body = value.strip('\n').replace('\r\n', '\n')
         body = [line.rstrip() for line in body.split('\n')]
         self._body = '\n'.join(body)
 
@@ -125,7 +155,7 @@ class Song:
         os.makedirs(directory, mode=0o755, exist_ok=True)
         path = os.path.join(directory, self.slug)
         with open(path, 'w') as f:
-            content = [self.name, self.artist, self.link, '', self.body, '']
+            content = [self.name, self.artist, self.link, '', self.info(), '']
             f.write('\n'.join(content))
         cache.delete_memoized(Song.all)
 

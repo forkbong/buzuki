@@ -12,7 +12,9 @@
   {{ form.csrf_token }}
   {{ render_field(form.name) }}
   {{ render_field(form.artist) }}
-  {{ render_field(form.body) }}
+  {{ render_field(form.scale, rows='1') }}
+  {{ render_field(form.rhythm, rows='1') }}
+  {{ render_field(form.body, rows='10', class='form-control monospace') }}
   {{ render_field(form.link) }}
   {{ render_button('Submit') }}
 </form>

@@ -125,7 +125,7 @@ def scale(slug, root='D'):
     except (ValueError, KeyError):
         abort(404)
     scale.root = root
-    songs = [song for song in Song.all() if scale.name in song.body]
+    songs = [song for song in Song.all() if scale.name in song.scale]
     return render_template(
         'scale.html',
         scale=scale,

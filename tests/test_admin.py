@@ -1,6 +1,7 @@
 from flask import url_for
 
 from buzuki.songs import Song
+from tests.factories import SongFactory
 
 
 class TestLogin:
@@ -67,6 +68,8 @@ def test_add(client):
         data={
             'name': 'name',
             'artist': 'artist',
+            'scale': 'scale',
+            'rhythm': 'rhythm',
             'body': 'body',
             'link': 'link',
         },
@@ -79,7 +82,7 @@ def test_add(client):
 def test_save_delete(client):
     with client.session_transaction() as session:
         session['logged_in'] = True
-    song = Song(name='name', artist='artist', link='link', body='Bm F# Bm')
+    song = SongFactory(body='Bm F# Bm')
     song.tofile()
     assert len(Song.all()) == 1
     url = url_for('admin.save', slug='name', semitones=1)

@@ -13,7 +13,7 @@ footer {
   position: absolute;
 }
 
-textarea {
+textarea.monospace {
   font-family: 'DejaVu Sans Mono', monospace;
   line-height: 17px;
   font-size: 15px;

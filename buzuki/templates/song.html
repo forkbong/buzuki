@@ -31,7 +31,7 @@
 {% block content %}
 <div class="row">
   <div class="col-lg-7">
-    <pre id="song-info">{{ song.body }}</pre>
+    <pre id="song-info">{{ song.info(html=True)|safe}}</pre>
   </div>
   {% if song.youtube_id %}
   <div class="col-lg-5">

@@ -32,7 +32,7 @@ def song(slug, semitones=None, root=None):
         'name': song.name,
         'artist': song.artist,
         'link': song.link,
-        'info': song.body,
+        'info': song.info(html=True),
     })
 
 
