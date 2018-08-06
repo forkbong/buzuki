@@ -35,6 +35,8 @@ def add():
             song = Song(
                 name=form.name.data,
                 artist=form.artist.data,
+                scale=form.scale.data,
+                rhythm=form.rhythm.data,
                 body=form.body.data,
                 link=form.link.data,
             )
@@ -69,6 +71,8 @@ def edit(slug):
         song.name = form.name.data
         song.artist = form.artist.data
         song.body = form.body.data
+        song.scale = form.scale.data
+        song.rhythm = form.rhythm.data
         song.link = form.link.data
         song.tofile()
         return redirect(url_for('main.song', slug=song.slug))
@@ -77,6 +81,8 @@ def edit(slug):
     form.name.data = song.name
     form.artist.data = song.artist
     form.body.data = song.body
+    form.scale.data = song.scale
+    form.rhythm.data = song.rhythm
     form.link.data = song.link
 
     return render_template(

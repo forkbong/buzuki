@@ -1,15 +1,39 @@
 import pytest
 
 from buzuki.songs import Song
+from tests.factories import SongFactory
 
 
-@pytest.mark.parametrize('body, expected', [
-    ('asdf  \r\n  asdf  \r\n', 'asdf\n  asdf\n'),
-    ('asdf\nasdf\n', 'asdf\nasdf\n'),
-])
-def test_body(client, body, expected):
-    song = Song(name='name', artist='artist', link='link', body=body)
-    assert song.body == expected
+def test_repr(client):
+    assert repr(SongFactory(name='Καλησπέρα')) == "<Song 'kalispera'>"
+
+
+def test_eq(client):
+    assert SongFactory(name='Καλησπέρα') == SongFactory(name='Καλησπέρα')
+    assert SongFactory(name='Καλησπέρα') == SongFactory(name='καλησπερα')
+    assert SongFactory(name='Καλησπέρα') != SongFactory(name='καλημερα')
+    assert SongFactory(name='Καλησπέρα') != 12345
+
+
+def test_info(client):
+    body = (
+        '\n'
+        'asdf\r\n'
+        '  asdf\n'
+        '  asdf   \r\n'
+        '\n'
+    )
+    expected = (
+        'scale\n'
+        '\n'
+        'rhythm\n'
+        '\n'
+        'asdf\n'
+        '  asdf\n'
+        '  asdf'
+    )
+    song = SongFactory(body=body)
+    assert song.info() == expected
 
 
 @pytest.mark.parametrize('link', [
@@ -22,7 +46,7 @@ def test_body(client, body, expected):
 ])
 def test_youtube_id(client, link):
     # https://gist.github.com/kmonsoor/2a1afba4ee127cce50a0
-    song = Song(name='name', artist='artist', link=link, body='body')
+    song = SongFactory(link=link)
     assert song.youtube_id == '_lOT2p_FCvA'
 
 
@@ -33,22 +57,12 @@ def test_youtube_id(client, link):
     ('http://www.youtube.com/asdf/_lOT2p_FCvA'),
 ])
 def test_invalid_youtube_id(client, link):
-    song = Song(name='name', artist='artist', link=link, body='body')
+    song = SongFactory(link=link)
     assert song.youtube_id is None
 
 
-def test_database(client):
-    song = Song(name='name', artist='artist', link='link', body='body')
-    song.tofile()
-    song = Song.get('name')
-    assert song.name == 'name'
-    assert song.artist == 'artist'
-    assert song.link == 'link'
-    assert song.body == 'body'
-
-
 def test_tofile(client):
-    song = Song(name='name', artist='artist', link='link', body='body')
+    song = SongFactory()
     song.tofile()
     with open('/tmp/buzuki_test/name') as f:
         assert f.read() == (
@@ -56,12 +70,16 @@ def test_tofile(client):
             'artist\n'
             'link\n'
             '\n'
+            'scale\n'
+            '\n'
+            'rhythm\n'
+            '\n'
             'body\n'
         )
 
 
 def test_get(client):
-    Song(name='name', artist='artist', link='link', body='body').tofile()
+    SongFactory().tofile()
     song = Song.get('name')
     assert song.name == 'name'
     assert song.artist == 'artist'

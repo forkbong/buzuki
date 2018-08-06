@@ -43,12 +43,10 @@ def transpose(song: str, num: int) -> str:
     return '\n'.join(new_song)
 
 
-def transpose_to_root(song: str, root: str) -> str:
+def transpose_to_root(song: str, old_root: str, new_root: str) -> str:
     """Transpose `song` to `root`."""
-    # NOTE: songs should start with the root and scale (e.g. D  Νιαβέντ)
-    old_root = song[0:2].strip()
     try:
-        diff = distance(root) - distance(old_root)
+        diff = distance(new_root) - distance(old_root)
     except KeyError:
         abort(404)
     return transpose(song, diff)

@@ -1,24 +1,24 @@
 from buzuki.artists import Artist
-from buzuki.songs import Song
+from tests.factories import SongFactory
 
 
 class TestArtist:
     def test_artist(self, client):
-        Song(name='a', artist='artist', link='link', body='body').tofile()
-        Song(name='b', artist='artist', link='link', body='body').tofile()
+        SongFactory(name='a').tofile()
+        SongFactory(name='b').tofile()
         assert repr(Artist('artist')) == "<Artist 'artist'>"
 
     def test_all(self, client):
-        Song(name='a', artist='artist_a', link='link', body='body').tofile()
-        Song(name='b', artist='artist_a', link='link', body='body').tofile()
-        Song(name='c', artist='artist_a', link='link', body='body').tofile()
-        Song(name='d', artist='artist_b', link='link', body='body').tofile()
+        SongFactory(name='a', artist='artist_a').tofile()
+        SongFactory(name='b', artist='artist_a').tofile()
+        SongFactory(name='c', artist='artist_a').tofile()
+        SongFactory(name='d', artist='artist_b').tofile()
         assert len(Artist.all()) == 2
 
     def test_search(self, client):
-        Song(name='a', artist='lorem ipsum', link='link', body='body').tofile()
-        Song(name='b', artist='lorem ipsum', link='link', body='body').tofile()
-        Song(name='c', artist='lalalalalal', link='link', body='body').tofile()
+        SongFactory(name='a', artist='lorem ipsum').tofile()
+        SongFactory(name='b', artist='lorem ipsum').tofile()
+        SongFactory(name='c', artist='lalalalalal').tofile()
 
         artists = list(Artist.search('ipsum'))
         assert len(artists) == 1
