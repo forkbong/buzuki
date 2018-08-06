@@ -1,6 +1,7 @@
 from flask import url_for
 
 from buzuki.songs import Song
+from tests.factories import SongFactory
 
 
 def test_index(client):
@@ -15,13 +16,13 @@ def test_404(client):
 
 
 def test_prepare_song(client):
-    song1 = Song(name='name_a', artist='artist', link='link', body='D#')
-    song2 = Song(name='name_b', artist='artist', link='link', body='Eb')
+    song1 = SongFactory(name='name_a', scale='D#')
+    song2 = SongFactory(name='name_b', scale='Eb')
     song1.tofile()
     song2.tofile()
-    assert Song.get('name_a', unicode=True).body == 'D♯'
-    assert Song.get('name_b', unicode=True).body == 'E♭'
-    assert Song.get('name_a', semitones=-2).body == 'C#'
-    assert Song.get('name_b', semitones=-2).body == 'Db'
-    assert Song.get('name_a', root='B').body == 'B'
-    assert Song.get('name_b', root='B').body == 'B'
+    assert Song.get('name_a', unicode=True).scale == 'D♯'
+    assert Song.get('name_b', unicode=True).scale == 'E♭'
+    assert Song.get('name_a', semitones=-2).scale == 'C#'
+    assert Song.get('name_b', semitones=-2).scale == 'Db'
+    assert Song.get('name_a', root='B').scale == 'B'
+    assert Song.get('name_b', root='B').scale == 'B'
