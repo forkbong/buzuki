@@ -61,7 +61,7 @@ def search(query):
     def do_search(query):
         """Yield songs that match the given query.
 
-        Searches in song names first, and then artist names.
+        Searches in song names first, then artist names, and finally scales.
         We skip search in song bodies for performance.
         """
         matched_by_title = []
@@ -71,6 +71,9 @@ def search(query):
 
         for artist in Artist.search(query):
             yield artist.name
+
+        for scale in Scale.search(query):
+            yield scale.name
 
     return jsonify(list(islice(do_search(query), 15)))
 
