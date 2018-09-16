@@ -117,5 +117,19 @@ def hash(password):
     click.echo(generate_password_hash(password))
 
 
+@cli.command()
+def filenames():
+    """Check that song filenames and slugs match."""
+    directory = app.config['SONGDIR']
+    assert os.path.isdir(directory)
+    for filename in os.listdir(directory):
+        path = os.path.join(directory, filename)
+        song = Song.fromfile(path)
+        if filename != song.slug:
+            if click.confirm(f"{filename} -> {song.slug}?"):
+                new_path = os.path.join(directory, song.slug)
+                os.rename(path, new_path)
+
+
 if __name__ == '__main__':
     cli()
