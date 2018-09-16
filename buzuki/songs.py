@@ -7,12 +7,13 @@ from flask import current_app as app
 from flask import url_for
 
 from buzuki import cache
+from buzuki.mixins import Model
 from buzuki.scales import Scale
 from buzuki.utils import (greeklish, to_unicode, transpose, transpose_to_root,
                           unaccented)
 
 
-class Song:
+class Song(Model):
     def __init__(self, name, artist, link, scale, rhythm, body):
         self.name = name
         self.artist = artist
@@ -20,9 +21,6 @@ class Song:
         self.scale = scale
         self.rhythm = rhythm
         self.body = body
-
-    def __repr__(self):
-        return '<Song %r>' % self.slug
 
     def __eq__(self, other):
         """Test instance equality by comparing slugs."""
@@ -172,14 +170,6 @@ class Song:
         for file in os.scandir(directory):
             os.remove(file.path)
         cache.delete_memoized(Song.all)
-
-    @classmethod
-    def search(cls, query):
-        query = unaccented(query.strip())
-        slug_query = re.sub(r'\s+', '_', query)
-        for song in cls.all():
-            if query in unaccented(song.name) or slug_query in song.slug:
-                yield song
 
     @classmethod
     def search_bodies(cls, query):

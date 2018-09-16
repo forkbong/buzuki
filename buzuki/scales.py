@@ -1,22 +1,20 @@
 import yaml
 from flask import abort
 
+from buzuki.mixins import Model
 from buzuki.utils import FLATS, SHARPS, distance, greeklish, to_unicode
 
 with open('buzuki/scales.yml') as f:
     SCALES = yaml.safe_load(f.read())
 
 
-class Scale:
+class Scale(Model):
     def __init__(self, name, ascending, descending, chords):
         self.name = name
         self.ascending = ascending
         self.descending = descending
         self.chords = chords
         self.root = 'D'
-
-    def __repr__(self):
-        return '<Scale %r>' % self.slug
 
     @classmethod
     def get(cls, name):

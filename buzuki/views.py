@@ -167,6 +167,10 @@ def search():
     if len(artists) == 1:
         return redirect(url_for('main.artist', slug=artists[0].slug))
 
+    if any(scale.name == query for scale in Scale.all()):
+        scale = Scale.get(query)
+        return redirect(url_for('main.scale', slug=scale.slug))
+
     abort(404)
 
 
