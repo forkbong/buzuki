@@ -1,6 +1,6 @@
 'use strict';
 
-const transposeInit = function transposeInit(apiUrl, contentDivId) {
+const transposeInit = function transposeInit(apiUrl, slug, contentDivId) {
   $('.transpose-dropdown-item').click(function () {
     const root = $(this).data('root');
     fetch(`${apiUrl}/${root}`)
@@ -14,6 +14,13 @@ const transposeInit = function transposeInit(apiUrl, contentDivId) {
           $('#header-title').html(data.title);
         }
       });
+    if (slug) {
+      const saveBtn = $('#save-button');
+      const printBtn = $('#print-button');
+      saveBtn.prop('hidden', false);
+      saveBtn.attr('href', `/admin/save/${slug}/${root}`);
+      printBtn.attr('href', `/songs/${slug}/${root}/print`);
+    }
   });
 
   window.onpopstate = function (event) {
@@ -28,5 +35,16 @@ const transposeInit = function transposeInit(apiUrl, contentDivId) {
         }
       });
     event.preventDefault();
+    if (slug) {
+      const saveBtn = $('#save-button');
+      const printBtn = $('#print-button');
+      if (root) {
+        saveBtn.prop('hidden', false);
+        saveBtn.attr('href', `/admin/save/${slug}/${root}`);
+        printBtn.attr('href', `/songs/${slug}/${root}/print`);
+      } else {
+        saveBtn.prop('hidden', true);
+      }
+    }
   };
 };
