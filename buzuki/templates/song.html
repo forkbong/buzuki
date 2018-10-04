@@ -10,14 +10,19 @@
 
 {% block extra_header %}
 {% include 'partials/transpose.html' %}
-<a href="{{ url_for('main.songprint', slug=song.slug, semitones=semitones, root=root) }}" title="Print">
+<a href="{{ url_for('main.songprint', slug=song.slug, semitones=semitones, root=root) }}"
+   id="print-button"
+   title="Print">
   <i class="fa fa-print" aria-hidden="true"></i>
 </a>
-{% if semitones or root %}
-<a href="{{ url_for('admin.save', slug=song.slug, semitones=semitones, root=root) }}" title="Save">
+<a {% if semitones or root %}
+   href="{{ url_for('admin.save', slug=song.slug, semitones=semitones, root=root) }}"
+   {% else %}
+   href="" hidden
+   {% endif %}
+   id="save-button" title="Save">
   <i class="fa fa-save" aria-hidden="true"></i>
 </a>
-{% endif %}
 <a href="{{ url_for('admin.edit', slug=song.slug) }}" title="Edit">
   <i class="fa fa-pencil" aria-hidden="true"></i>
 </a>
@@ -49,6 +54,6 @@
 {% block javascript %}
 <script src="{{ url_for('static', filename='transpose.js') }}"></script>
 <script>
-  transposeInit('/api/songs/{{ song.slug }}', '#song-info');
+  transposeInit('/api/songs/{{ song.slug }}', '{{ song.slug }}', '#song-info');
 </script>
 {% endblock %}
