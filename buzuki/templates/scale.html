@@ -35,6 +35,6 @@
 {% block javascript %}
 <script src="{{ url_for('static', filename='transpose.js') }}"></script>
 <script>
-  transposeInit('/api/scales/{{ scale.slug }}', '#scale-info');
+  transposeInit('/api/scales/{{ scale.slug }}', '', '#scale-info');
 </script>
 {% endblock %}
