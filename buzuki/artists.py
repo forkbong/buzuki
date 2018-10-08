@@ -21,3 +21,18 @@ class Artist(Model):
         artists = [cls(slug=artist, num=count[artist]) for artist in count]
         artists.sort(key=lambda artist: unaccented(artist.name.split()[-1]))
         return artists
+
+    @property
+    def genitive(self):
+        last_name = self.name.split()[-1]
+        transformations = {
+            'άς': 'ά',
+            'ας': 'α',
+            'ης': 'η',
+            'ος': 'ου',
+            'ός': 'ού',
+        }
+        for key, value in transformations.items():
+            if last_name.endswith(key):
+                return last_name.replace(key, value)
+        return last_name

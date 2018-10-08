@@ -1,0 +1,16 @@
+<div class="row">
+  {% for song in songs %}
+  {% if not artist %}
+  <div class="d-none d-md-block col-md-5 col-lg-4">
+    <a class="font-weight-bold float-right" href="{{ url_for('main.artist', slug=song.artist_slug) }}">
+      {{ song.artist }}
+    </a>
+  </div>
+  {% endif %}
+  <div class="col-sm-12 col-md-7 col-lg-8">
+    <a href="{{ url_for('main.song', slug=song.slug) }}">
+      {{ song.name }}
+    </a>
+  </div>
+  {% endfor %}
+</div>
