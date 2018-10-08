@@ -35,9 +35,20 @@ def song(slug, semitones=None, root=None):
         song = Song.get(slug, semitones=semitones, root=root, unicode=True)
     except ValueError:
         abort(404)
+    artist = Artist(song.artist_slug)
+    related_songs = [song for song in artist.songs if song.slug != slug]
+    related_title = (
+        'Άλλα παραδοσιακά'
+        if song.artist == 'Παραδοσιακό'
+        else f'Άλλα του {artist.genitive}'
+    )
+
     return render_template(
         'song.html',
         song=song,
+        artist=artist,
+        songs=related_songs,
+        related_title=related_title,
         semitones=semitones,
         root=root,
         admin=session.get('logged_in'),
@@ -125,10 +136,12 @@ def scale(slug, root='D'):
         abort(404)
     scale.root = root
     songs = [song for song in Song.all() if scale.name in song.scale]
+    scales = [s for s in Scale.all() if s.slug != scale.slug]
     return render_template(
         'scale.html',
         scale=scale,
         songs=songs,
+        scales=scales,
         admin=session.get('logged_in'),
     )
 

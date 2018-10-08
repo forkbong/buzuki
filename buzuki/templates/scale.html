@@ -13,23 +13,35 @@
 {% endblock %}
 
 {% block content %}
-<pre id="id="scale-info"">{{ scale.info }}</pre>
-{% for song in songs %}
 <div class="row">
-  <div class="d-none d-md-block col-md-5 col-lg-3">
-    <span class="float-right" style="font-weight:bold">
-      <a href="{{ url_for('main.artist', slug=song.artist_slug) }}">
-        {{ song.artist }}
-      </a>
-    </span>
+  <div class="col-lg-8">
+    <div class="row">
+      <div class="col-md-12">
+        <pre id="scale-info">{{ scale.info }}</pre>
+      </div>
+      <div class="col-md-12 mt-4">
+        {% if songs %}
+        <h5>Τραγούδια σε {{ scale.name }}</h5>
+        {% endif %}
+        <div class="mt-3">
+          {% include 'partials/songlist.html' %}
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="col-sm-12 col-md-7 col-lg-9">
-    <a href="{{ url_for('main.song', slug=song.slug) }}">
-      {{ song.name }}
-    </a>
+  <div class="col-lg-4 mt-4">
+    <h5>Άλλοι δρόμοι</h5>
+    <div class="row">
+      {% for scale in scales %}
+      <div class="col-md-12">
+        <a href="{{ url_for('main.scale', slug=scale.slug, root=scale.root) }}">
+          {{ scale.name }}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
-{% endfor %}
 {% endblock %}
 
 {% block javascript %}
