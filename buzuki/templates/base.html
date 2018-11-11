@@ -25,9 +25,16 @@
             <li class="nav-item"><a class="nav-link" href="{{ url_for('main.scales') }}">Δρόμοι</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('main.random') }}">Τυχαίο</a></li>
           </ul>
-          <form id="search-form" class="form-inline my-2 my-md-0" method="get" action="{{ url_for('main.search') }}">
-            <input id="search-input" class="form-control" type="text" placeholder="Αναζήτηση" value="{{ request.args.get('q', '') }}" name="q">
-          </form>
+          <div id="search-form" class="form-inline my-2 my-md-0">
+            <input id="search-input"
+                   class="form-control"
+                   type="text"
+                   placeholder="Αναζήτηση"
+                   value="{{ request.args.get('q', '') }}"
+                   autocomplete="off"
+                   aria-label="Search">
+            <ul id="autocomplete"></ul>
+          </div>
         </div>
       </div>
     </nav>
@@ -61,8 +68,7 @@
         <p class="text-muted mt-3">Copyright &copy; 2016 - {{ current_year }} Takis</p>
       </footer>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
     {% block javascript %}
