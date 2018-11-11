@@ -40,7 +40,7 @@ div.no-underline a:hover {
 }
 
 /* https://stackoverflow.com/a/28286277 */
-.ui-autocomplete {
+#autocomplete {
   position: absolute;
   z-index: 1000;
   cursor: default;
@@ -55,16 +55,13 @@ div.no-underline a:hover {
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  display: none;
 }
 
-.ui-autocomplete > li {
+#autocomplete > li {
   padding: 3px 20px;
 }
 
-.ui-autocomplete > li.ui-state-focus {
+#autocomplete > li.selected {
   background-color: #eeeeee;
-}
-
-.ui-helper-hidden-accessible {
-  display: none;
 }
