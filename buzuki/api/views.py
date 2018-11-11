@@ -67,13 +67,22 @@ def search(query):
         matched_by_title = []
         for song in Song.search(query):
             matched_by_title.append(song.name)
-            yield song.name
+            yield {
+                'name': song.name,
+                'url': song.url,
+            }
 
         for artist in Artist.search(query):
-            yield artist.name
+            yield {
+                'name': artist.name,
+                'url': artist.url,
+            }
 
         for scale in Scale.search(query):
-            yield scale.name
+            yield {
+                'name': scale.name,
+                'url': scale.url,
+            }
 
     return jsonify(list(islice(do_search(query), 15)))
 
