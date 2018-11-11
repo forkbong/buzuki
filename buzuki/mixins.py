@@ -7,6 +7,10 @@ class Model:
     def __repr__(self):
         return f"<{self.__class__.__name__} '{self.slug}'>"
 
+    @property
+    def url(self):
+        return f'/{self.__class__.__name__.lower()}s/{self.slug}/'
+
     @classmethod
     def search(cls, query):
         query = unaccented(query.strip())
