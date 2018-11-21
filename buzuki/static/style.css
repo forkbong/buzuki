@@ -1,3 +1,12 @@
+@font-face {
+  font-family: 'DejaVu Sans Mono';
+  /* https://developers.google.com/web/updates/2016/02/font-display */
+  font-display: swap;
+  src: url('/static/fonts/0fa23684c88737952788b01bba227ea9.woff2') format('woff2'),
+       url('/static/fonts/0fa23684c88737952788b01bba227ea9.woff') format('woff'),
+       url('/static/fonts/0fa23684c88737952788b01bba227ea9.ttf') format('truetype');
+}
+
 html {
   position: relative;
   min-height: 100%;
