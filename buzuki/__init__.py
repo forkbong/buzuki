@@ -1,8 +1,11 @@
+import hashlib
+import os.path
 from datetime import datetime
 
 from flask import Flask
 from flask_caching import Cache
 from flask_wtf import CSRFProtect
+from werkzeug.security import safe_join
 
 from config import config
 
@@ -10,8 +13,32 @@ csrf = CSRFProtect()
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 
 
+# Based on https://gist.github.com/mfenniak/2978805
+# but we don't check the file modtime for performance.
+class FileHashFlask(Flask):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._hash_cache = {}
+
+    def inject_url_defaults(self, endpoint, values):
+        super().inject_url_defaults(endpoint, values)
+        if endpoint == 'static' and 'filename' in values:
+            filepath = safe_join(self.static_folder, values['filename'])
+            h = self._hash_cache.get(filepath)
+            if h is not None:
+                values['h'] = h
+                return
+            if os.path.isfile(filepath):
+                h = hashlib.md5()
+                with open(filepath, 'rb') as f:
+                    h.update(f.read())
+                h = h.hexdigest()
+                self._hash_cache[filepath] = h
+                values['h'] = h
+
+
 def create_app(config_name='default'):
-    app = Flask(__name__)
+    app = FileHashFlask(__name__)
 
     app.config.from_object(config[config_name])
     app.jinja_env.trim_blocks = True
