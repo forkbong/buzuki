@@ -1,0 +1,13 @@
+image: python:latest
+
+stages:
+  - test
+
+py3.7:
+  stage: test
+  image: python:3.7
+  before_script:
+  - pip install poetry --upgrade
+  - poetry install
+  script:
+  - poetry run python3 -m pytest
