@@ -1,5 +1,7 @@
 # Buzuki
 
+[![pipeline status](https://gitlab.com/forkbong/buzuki/badges/master/pipeline.svg)](https://gitlab.com/forkbong/buzuki/commits/master)
+
 A minimalistic web app for displaying and transposing Greek song chords.
 
 ## License
