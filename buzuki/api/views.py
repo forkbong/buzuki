@@ -1,10 +1,10 @@
 import logging
 import re
-from itertools import islice
 
+import elasticsearch
 from flask import Blueprint, abort, jsonify
 
-from buzuki.artists import Artist
+from buzuki import elastic
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -58,34 +58,12 @@ def scale(slug, root='D'):
 @api.route('/search/<query>/')
 def search(query):
     """A list with at most 15 results that match the query."""
+    try:
+        results = elastic.search(query)['hits']['hits']
+    except elasticsearch.ConnectionError:
+        return jsonify({'error': "Couldn't connect to elasticsearch"}), 500
 
-    def do_search(query):
-        """Yield songs that match the given query.
-
-        Searches in song names first, then artist names, and finally scales.
-        We skip search in song bodies for performance.
-        """
-        matched_by_title = []
-        for song in Song.search(query):
-            matched_by_title.append(song.name)
-            yield {
-                'name': song.name,
-                'url': song.url,
-            }
-
-        for artist in Artist.search(query):
-            yield {
-                'name': artist.name,
-                'url': artist.url,
-            }
-
-        for scale in Scale.search(query):
-            yield {
-                'name': scale.name,
-                'url': scale.url,
-            }
-
-    return jsonify(list(islice(do_search(query), 15)))
+    return jsonify(list(result['_source'] for result in results))
 
 
 @api.route('/<path>', strict_slashes=False)
