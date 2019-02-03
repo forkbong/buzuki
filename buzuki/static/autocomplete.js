@@ -24,12 +24,15 @@ $(() => {
   };
 
   const search = function () {
-    const query = $searchInput.val();
+    const query = $searchInput
+      .val()
+      .replace(/[!@#$%^&*()\-_=+'"\s]+/gu, ' ')
+      .trim();
     if (!query.length) {
       $autocompleteWidget.hide();
       return;
     }
-    fetch(`/api/search/${query}/`)
+    fetch(`/api/autocomplete/?q=${query}`)
       .then((resp) => resp.json())
       .then((data) => {
         json = data;

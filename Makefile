@@ -2,12 +2,9 @@
 
 init:
 	poetry install
-	./scripts/elastic.sh install
-	./scripts/elastic.sh start
-	./manage.py index
 
 run:
-	-./scripts/elastic.sh start
+	nohup flock -n /tmp/buzuki-search.lock buzuki-search > /tmp/buzuki-search.log 2>&1 &
 	FLASK_APP=buzuki FLASK_ENV=development flask run
 
 test:

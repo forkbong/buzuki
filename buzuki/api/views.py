@@ -1,7 +1,8 @@
 import re
 
 import elasticsearch
-from flask import Blueprint, abort, jsonify
+import requests
+from flask import Blueprint, abort, jsonify, request
 
 from buzuki import elastic
 from buzuki.scales import Scale
@@ -63,6 +64,14 @@ def search(query):
         return jsonify({'error': "Couldn't connect to elasticsearch"}), 500
 
     return jsonify(list(result['_source'] for result in results))
+
+
+@api.route('/autocomplete/')
+def autocomplete():
+    """A list with at most 15 results that match the query."""
+    query = request.args['q']
+    url = f'http://localhost:1337/autocomplete/?q={query}'
+    return requests.get(url).content
 
 
 @api.route('/<path>', strict_slashes=False)
