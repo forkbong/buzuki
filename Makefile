@@ -2,8 +2,12 @@
 
 init:
 	poetry install
+	./scripts/elastic.sh install
+	./scripts/elastic.sh start
+	./manage.py index
 
 run:
+	-./scripts/elastic.sh start
 	FLASK_APP=buzuki FLASK_ENV=development flask run
 
 test:
