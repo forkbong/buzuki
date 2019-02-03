@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+import json
 import os
+import re
 import subprocess
 import sys
 from multiprocessing import cpu_count
+from string import printable
 
 import click
 import IPython
@@ -11,10 +14,24 @@ from flask import current_app as app
 from flask.cli import FlaskGroup, with_appcontext
 from gunicorn.app.base import BaseApplication
 from IPython.terminal.ipapp import load_default_config
+from pygments import formatters, highlight, lexers
 from werkzeug.security import generate_password_hash
 
-from buzuki import create_app
+from buzuki import create_app, elastic
+from buzuki.artists import Artist
+from buzuki.elastic import es
+from buzuki.scales import Scale
 from buzuki.songs import Song
+
+
+def pprint(obj):
+    """Pretty-print `obj` using `json` and `pygments`."""
+    formatted = highlight(
+        json.dumps(obj, indent=4, ensure_ascii=False),
+        lexers.JsonLexer(),
+        formatters.TerminalFormatter(),
+    )
+    print(formatted)
 
 
 @click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
@@ -127,6 +144,65 @@ def filenames():
             if click.confirm(f"{filename} -> {song.slug}?"):
                 new_path = os.path.join(directory, song.slug)
                 os.rename(path, new_path)
+
+
+@cli.command()
+def index():
+    """Index all data into elasticsearch."""
+    elastic.create_index()
+
+    def index_all(model, name):
+        with click.progressbar(model.all(), label=f"Indexing {name}") as bar:
+            for item in bar:
+                elastic.index(item)
+
+    index_all(Song, 'songs')
+    index_all(Artist, 'artists')
+    index_all(Scale, 'scales')
+
+
+@cli.command()
+@click.argument('query')
+@click.option('-a', '--artists', is_flag=True, help="Only search for artists.")
+@click.option('-v', '--verbose', is_flag=True, help="Print whole documents.")
+def search(query, artists, verbose):
+    """Perform a search in elasticsearch."""
+    result = elastic.search(query, ['url:artists'] if artists else [])
+    hits = result['hits']['hits']
+    if verbose:
+        pprint(hits)
+    else:
+        for hit in result['hits']['hits']:
+            print(f"{hit['_source']['name']} ({hit['_score']})")
+
+
+@cli.command()
+@click.argument('query')
+def analyze(query):
+    """Analyze query and print tokens.
+
+    ASCII queries are analyzed with the 'standard' and 'slug' analyzers, and
+    greek queries with 'standard', 'greek_autocomplete', 'greek_lowercase' and
+    'greek_stemmed' analyzers.
+    """
+    analyzers = ['standard']
+    if re.match(fr'^[{printable}]*$', query):
+        analyzers.append('slug')
+    else:
+        analyzers.extend([
+            'greek_autocomplete',
+            'greek_stemmed',
+            'greek_lowercase',
+        ])
+
+    body = {'text': query}
+    response = {}
+    for analyzer in analyzers:
+        body['analyzer'] = analyzer
+        result = es.indices.analyze(index='documents', body=body)
+        response[analyzer] = [token['token'] for token in result['tokens']]
+
+    pprint(response)
 
 
 if __name__ == '__main__':
