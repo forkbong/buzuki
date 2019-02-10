@@ -71,7 +71,7 @@ def test_add(client):
             'scale': 'scale',
             'rhythm': 'rhythm',
             'body': 'body',
-            'link': 'link',
+            'link': 'https://www.youtube.com/watch?v=asdfasdf',
         },
         follow_redirects=True
     )
