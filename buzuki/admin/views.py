@@ -29,9 +29,7 @@ def add():
     form = SongForm(request.form)
 
     if request.method == 'POST':
-        if not form.validate():
-            flash("All fields are required.", 'danger')
-        else:
+        if form.validate():
             song = Song(
                 name=form.name.data,
                 artist=form.artist.data,
