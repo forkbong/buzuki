@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, TextAreaField
-from wtforms.validators import DataRequired
+from wtforms.validators import URL, DataRequired
 
 
 class SongForm(FlaskForm):
@@ -9,7 +9,7 @@ class SongForm(FlaskForm):
     scale = TextAreaField('Scale', [DataRequired()])
     rhythm = TextAreaField('Rhythm', [DataRequired()])
     body = TextAreaField('Body', [DataRequired()])
-    link = StringField('YouTube link')
+    link = StringField('YouTube link', [DataRequired(), URL()])
 
 
 class PasswordForm(FlaskForm):
