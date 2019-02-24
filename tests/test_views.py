@@ -26,3 +26,28 @@ def test_prepare_song(client):
     assert Song.get('name_b', semitones=-2).scale == 'Db'
     assert Song.get('name_a', root='B').scale == 'B'
     assert Song.get('name_b', root='B').scale == 'B'
+
+
+def test_artist_404(client):
+    SongFactory(name='name_a').tofile()
+    url = url_for('main.artist', slug='asdf')
+    resp = client.get(url)
+    assert resp.status_code == 404
+
+
+def test_artist_one_song(client):
+    SongFactory(name='name_a').tofile()
+    url = url_for('main.artist', slug='artist')
+    resp = client.get(url)
+    assert resp.status_code == 302
+    assert resp.location == url_for('main.song', slug='name_a')
+
+
+def test_artist_normal(client):
+    SongFactory(name='name_a').tofile()
+    SongFactory(name='name_b').tofile()
+    url = url_for('main.artist', slug='artist')
+    resp = client.get(url)
+    assert resp.status_code == 200
+    assert b'name_a' in resp.data
+    assert b'name_b' in resp.data
