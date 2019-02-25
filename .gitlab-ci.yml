@@ -1,5 +1,8 @@
 image: python:latest
 
+services:
+  - redis:latest
+
 stages:
   - test
 

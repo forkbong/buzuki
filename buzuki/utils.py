@@ -1,6 +1,6 @@
 import re
 
-from flask import abort
+from buzuki import InvalidNote
 
 SHARPS = ['D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B', 'C', 'C#']
 FLATS = ['D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B', 'C', 'Db']
@@ -13,7 +13,10 @@ def distance(note: str) -> int:
     """
     if note in SHARPS:
         return SHARPS.index(note)
-    return FLATS.index(note)
+    elif note in FLATS:
+        return FLATS.index(note)
+    else:
+        raise InvalidNote(f"'{note}' is not a valid note")
 
 
 def transpose(song: str, num: int) -> str:
@@ -45,10 +48,7 @@ def transpose(song: str, num: int) -> str:
 
 def transpose_to_root(song: str, old_root: str, new_root: str) -> str:
     """Transpose `song` to `root`."""
-    try:
-        diff = distance(new_root) - distance(old_root)
-    except KeyError:
-        abort(404)
+    diff = distance(new_root) - distance(old_root)
     return transpose(song, diff)
 
 

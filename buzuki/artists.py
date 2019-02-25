@@ -1,26 +1,39 @@
-from collections import Counter
-
-from buzuki import cache
+from buzuki import DoesNotExist, cache_utils
 from buzuki.mixins import Model
 from buzuki.songs import Song
-from buzuki.utils import unaccented
+from buzuki.utils import greeklish
 
 
 class Artist(Model):
-    def __init__(self, slug, num=None):
-        self.slug = slug
-        self.songs = [song for song in Song.all() if song.artist_slug == slug]
-        self.name = self.songs[0].artist
-        self.num = num or len(self.songs)
+    def __init__(self, name, songs):
+        self.name = name
+        self.songs = songs
+        self.num = len(songs)
 
     @classmethod
-    @cache.memoize(timeout=60)
+    def get(cls, slug):
+        try:
+            artist = cache_utils.get_artists()[slug]
+        except KeyError:
+            raise DoesNotExist(f"Artist '{slug}' does not exist")
+        return cls.frommetadata(artist)
+
+    @classmethod
+    def frommetadata(cls, artist):
+        songs = [Song.frommetadata(song) for song in artist['songs']]
+        return cls(
+            name=artist['name'],
+            songs=songs,
+        )
+
+    @classmethod
     def all(cls):
-        artists = [song.artist_slug for song in Song.all()]
-        count = Counter(artists)
-        artists = [cls(slug=artist, num=count[artist]) for artist in count]
-        artists.sort(key=lambda artist: unaccented(artist.name.split()[-1]))
-        return artists
+        artists = cache_utils.get_artists().values()
+        return [cls.frommetadata(artist) for artist in artists]
+
+    @property
+    def slug(self):
+        return greeklish(self.name)
 
     @property
     def genitive(self):

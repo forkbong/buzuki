@@ -10,7 +10,20 @@ from werkzeug.security import safe_join
 from config import config
 
 csrf = CSRFProtect()
-cache = Cache(config={'CACHE_TYPE': 'simple'})
+cache = Cache(config={
+    'CACHE_TYPE': 'redis',
+    # The default host is 'localhost'. We use 'redis' because gitlab-ci
+    # uses that, and we redirect redis to localhost in `/etc/hosts`.
+    'CACHE_REDIS_HOST': 'redis',
+})
+
+
+class DoesNotExist(Exception):
+    pass
+
+
+class InvalidNote(Exception):
+    pass
 
 
 # Based on https://gist.github.com/mfenniak/2978805
@@ -71,5 +84,7 @@ def create_app(config_name='default'):
 
     from buzuki.admin.views import admin
     app.register_blueprint(admin, url_prefix='/admin')
+
+    cache.clear()
 
     return app
