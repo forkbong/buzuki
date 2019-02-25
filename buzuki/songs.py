@@ -2,15 +2,13 @@ import os
 import re
 from urllib.parse import parse_qs, urlparse
 
-from flask import abort
 from flask import current_app as app
 from flask import url_for
 
-from buzuki import cache
+from buzuki import DoesNotExist, cache_utils
 from buzuki.mixins import Model
 from buzuki.scales import Scale
-from buzuki.utils import (greeklish, to_unicode, transpose, transpose_to_root,
-                          unaccented)
+from buzuki.utils import greeklish, to_unicode, transpose, transpose_to_root
 
 
 class Song(Model):
@@ -62,28 +60,28 @@ class Song(Model):
             with open(path) as f:
                 file = f.read()
         except FileNotFoundError:
-            abort(404)
+            raise DoesNotExist(f"Song '{filename}' does not exist")
         name, artist, link, rest = [x for x in file.split('\n', 3)]
         scale, rhythm, body = rest.strip('\n').split('\n\n', 2)
         song = cls(name, artist, link, scale, rhythm, body)
         return song
 
     @classmethod
-    @cache.memoize(timeout=60)
+    def frommetadata(cls, song):
+        return cls(
+            name=song.get('name'),
+            artist=song.get('artist'),
+            link=None,
+            scale=song.get('scale'),
+            rhythm=None,
+            body=None,
+        )
+
+    @classmethod
     def all(cls):
         """Get all songs from the database."""
-        songs = []
-        directory = app.config['SONGDIR']
-        if not os.path.isdir(directory):
-            return songs
-        for filename in os.listdir(directory):
-            path = os.path.join(directory, filename)
-            assert os.path.isfile(path)
-            song = cls.fromfile(path)
-            songs.append(song)
-        # Sort and ignore accents
-        songs.sort(key=lambda song: unaccented(song.name))
-        return songs
+        songs = cache_utils.get_songs().values()
+        return [cls.frommetadata(song) for song in songs]
 
     @property
     def youtube_id(self):
@@ -136,9 +134,12 @@ class Song(Model):
     @body.setter
     def body(self, value):
         """No trailing witespace and unix end-of-line characters."""
-        body = value.strip('\n').replace('\r\n', '\n')
-        body = [line.rstrip() for line in body.split('\n')]
-        self._body = '\n'.join(body)
+        if value is None:
+            self._body = None
+        else:
+            body = value.strip('\n').replace('\r\n', '\n')
+            body = [line.rstrip() for line in body.split('\n')]
+            self._body = '\n'.join(body)
 
     @property
     def slug(self):
@@ -155,13 +156,13 @@ class Song(Model):
         with open(path, 'w') as f:
             content = [self.name, self.artist, self.link, '', self.info(), '']
             f.write('\n'.join(content))
-        cache.delete_memoized(Song.all)
+        cache_utils.clear()
 
     def delete(self):
         directory = app.config['SONGDIR']
         path = os.path.join(directory, self.slug)
         os.remove(path)
-        cache.delete_memoized(Song.all)
+        cache_utils.clear()
 
     @staticmethod
     def delete_all():
@@ -170,11 +171,4 @@ class Song(Model):
             return
         for file in os.scandir(directory):
             os.remove(file.path)
-        cache.delete_memoized(Song.all)
-
-    @classmethod
-    def search_bodies(cls, query):
-        query = unaccented(query.strip())
-        for song in cls.all():
-            if query in unaccented(song.body):
-                yield song
+        cache_utils.clear()

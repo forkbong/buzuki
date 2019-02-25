@@ -6,6 +6,7 @@ from secrets import choice
 from flask import (Blueprint, abort, redirect, render_template, request,
                    session, url_for)
 
+from buzuki import DoesNotExist, InvalidNote
 from buzuki.artists import Artist
 from buzuki.decorators import add_slug_to_cookie
 from buzuki.scales import Scale
@@ -34,9 +35,9 @@ def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
     try:
         song = Song.get(slug, semitones=semitones, root=root, unicode=True)
-    except ValueError:
+    except (DoesNotExist, InvalidNote):
         abort(404)
-    artist = Artist(song.artist_slug)
+    artist = Artist.get(song.artist_slug)
     related_songs = [song for song in artist.songs if song.slug != slug]
     related_title = (
         'Άλλα παραδοσιακά'
@@ -63,7 +64,7 @@ def songprint(slug, semitones=None, root=None):
     """A song in a printable form."""
     try:
         song = Song.get(slug, semitones=semitones, root=root, unicode=True)
-    except ValueError:
+    except (DoesNotExist, InvalidNote):
         abort(404)
     return render_template('songprint.html', song=song)
 
@@ -98,8 +99,8 @@ def artists():
 def artist(slug):
     """A list of all songs from given artist."""
     try:
-        artist = Artist(slug)
-    except IndexError:
+        artist = Artist.get(slug)
+    except DoesNotExist:
         abort(404)
 
     if artist.num == 1:
@@ -133,7 +134,7 @@ def scale(slug, root='D'):
     root = re.sub('s', '#', root)
     try:
         scale = Scale.get(slug)
-    except (ValueError, KeyError):
+    except DoesNotExist:
         abort(404)
     scale.root = root
     songs = [song for song in Song.all() if scale.name in song.scale]
@@ -154,8 +155,6 @@ def search():
         return redirect(url_for('main.index'))
 
     songs = list(Song.search(query))
-    songs.extend(song for song in Song.search_bodies(query)
-                 if song not in songs)
 
     if len(songs) > 1:
         return render_template(

@@ -1,7 +1,8 @@
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 from werkzeug.security import check_password_hash
 
+from buzuki import DoesNotExist
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import login_required
 from buzuki.songs import Song
@@ -94,7 +95,10 @@ def edit(slug):
 @admin.route('/delete/<slug>')
 @login_required
 def delete(slug):
-    song = Song.get(slug)
+    try:
+        song = Song.get(slug)
+    except DoesNotExist:
+        abort(404)
     song.delete()
     return redirect(url_for('main.index'))
 

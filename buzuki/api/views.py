@@ -5,7 +5,7 @@ import elasticsearch
 import requests
 from flask import Blueprint, abort, jsonify, request
 
-from buzuki import elastic
+from buzuki import DoesNotExist, InvalidNote, cache_utils, elastic
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -15,12 +15,7 @@ api = Blueprint('api', __name__)
 @api.route('/')
 def index():
     """A list of all songs in the database."""
-    songs = Song.all()
-    return jsonify([{
-        'name': song.name,
-        'artist': song.artist,
-        'link': song.link,
-    } for song in songs])
+    return jsonify(cache_utils.get_songs())
 
 
 @api.route('/songs/<slug>/')
@@ -28,7 +23,12 @@ def index():
 @api.route('/songs/<slug>/<root>')
 def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
-    song = Song.get(slug, semitones=semitones, root=root, unicode=True)
+    try:
+        song = Song.get(slug, semitones=semitones, root=root, unicode=True)
+    except DoesNotExist:
+        abort(404)
+    except InvalidNote as e:
+        return jsonify({'message': str(e)}), 400
     return jsonify({
         'name': song.name,
         'artist': song.artist,
@@ -46,7 +46,7 @@ def scale(slug, root='D'):
     root = re.sub('s', '#', root)
     try:
         scale = Scale.get(slug)
-    except (ValueError, KeyError):
+    except DoesNotExist:
         abort(404)
     scale.root = root
     return jsonify({
