@@ -1,6 +1,6 @@
 import yaml
-from flask import abort
 
+from buzuki import DoesNotExist, InvalidNote
 from buzuki.mixins import Model
 from buzuki.utils import FLATS, SHARPS, distance, greeklish, to_unicode
 
@@ -20,7 +20,10 @@ class Scale(Model):
     def get(cls, name):
         """Scale constructor that takes the name of the scale."""
         key = greeklish(name)
-        s = SCALES[key]
+        try:
+            s = SCALES[key]
+        except KeyError:
+            raise DoesNotExist(f"Scale '{name}' does not exist")
         return cls(
             s.get('name'),
             s.get('ascending'),
@@ -143,7 +146,7 @@ class Scale(Model):
         try:
             idx = chromatic.index(root)
         except ValueError:
-            abort(404)
+            raise InvalidNote(f"'{root}' is not a valid note")
         chromatic = chromatic[idx:] + chromatic[:idx]
         notes[0] = root
         for i, note in enumerate(notes):

@@ -17,7 +17,7 @@ from IPython.terminal.ipapp import load_default_config
 from pygments import formatters, highlight, lexers
 from werkzeug.security import generate_password_hash
 
-from buzuki import create_app, elastic
+from buzuki import cache_utils, create_app, elastic
 from buzuki.artists import Artist
 from buzuki.elastic import es
 from buzuki.scales import Scale
@@ -203,6 +203,21 @@ def analyze(query):
         response[analyzer] = [token['token'] for token in result['tokens']]
 
     pprint(response)
+
+
+@cli.command()
+@click.option('-a', '--artists', is_flag=True, help="Print artists.")
+@click.option('-s', '--songs', is_flag=True, help="Print songs.")
+def cache(artists, songs):
+    """Print the contents of the redis cache."""
+    if not artists and not songs:
+        artists = songs = True
+    if artists:
+        artists = cache_utils.get_artists()
+        pprint(artists)
+    if songs:
+        songs = cache_utils.get_songs()
+        pprint(songs)
 
 
 if __name__ == '__main__':

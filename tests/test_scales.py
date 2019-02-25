@@ -1,5 +1,6 @@
 import pytest
 
+from buzuki import InvalidNote
 from buzuki.scales import Scale
 
 
@@ -91,6 +92,5 @@ def test_all():
 def test_invalid_root():
     scale = Scale.get('rast')
     scale.root = 'Fb'
-    import werkzeug
-    with pytest.raises(werkzeug.exceptions.NotFound):
+    with pytest.raises(InvalidNote):
         scale.info

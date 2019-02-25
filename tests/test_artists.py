@@ -6,7 +6,7 @@ class TestArtist:
     def test_artist(self, client):
         SongFactory(name='a').tofile()
         SongFactory(name='b').tofile()
-        assert repr(Artist('artist')) == "<Artist 'artist'>"
+        assert repr(Artist.get('artist')) == "<Artist 'artist'>"
 
     def test_all(self, client):
         SongFactory(name='a', artist='artist_a').tofile()

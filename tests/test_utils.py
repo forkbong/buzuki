@@ -2,6 +2,7 @@ from textwrap import dedent
 
 import pytest
 
+from buzuki import InvalidNote
 from buzuki.utils import distance, greeklish, transpose
 
 
@@ -13,13 +14,13 @@ def test_distance():
     assert distance('F#') == 4
     assert distance('Eb') == 1
     assert distance('Gb') == 4
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidNote):
         distance('E#')
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidNote):
         distance('Fb')
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidNote):
         distance('G##')
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidNote):
         distance('asdf')
 
 
