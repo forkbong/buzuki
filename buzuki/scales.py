@@ -37,10 +37,6 @@ class Scale(Model):
         return [cls.get(name) for name in SCALES]
 
     @property
-    def slug(self):
-        return greeklish(self.name)
-
-    @property
     def info(self):
         """Return information about the scale."""
         stuff = [self.notes(), self.fretboard()]

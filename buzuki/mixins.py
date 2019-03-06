@@ -1,11 +1,21 @@
 import re
 
-from buzuki.utils import unaccented
+from buzuki.utils import greeklish, unaccented
 
 
 class Model:
     def __repr__(self):
         return f"<{self.__class__.__name__} '{self.slug}'>"
+
+    def __eq__(self, other):
+        """Test instance equality by comparing slugs."""
+        if isinstance(other, self.__class__):
+            return self.slug == other.slug
+        return False
+
+    @property
+    def slug(self):
+        return greeklish(self.name)
 
     @property
     def url(self):
