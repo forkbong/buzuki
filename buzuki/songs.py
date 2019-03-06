@@ -20,12 +20,6 @@ class Song(Model):
         self.rhythm = rhythm
         self.body = body
 
-    def __eq__(self, other):
-        """Test instance equality by comparing slugs."""
-        if isinstance(other, Song):
-            return self.slug == other.slug
-        return False
-
     @classmethod
     def get(cls, slug, semitones=None, root=None, unicode=False):
         """Load a song from file and optionally transpose it.
@@ -139,10 +133,6 @@ class Song(Model):
             body = value.strip('\n').replace('\r\n', '\n')
             body = [line.rstrip() for line in body.split('\n')]
             self._body = '\n'.join(body)
-
-    @property
-    def slug(self):
-        return greeklish(self.name)
 
     @property
     def artist_slug(self):

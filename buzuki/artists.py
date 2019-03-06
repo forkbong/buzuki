@@ -1,7 +1,6 @@
 from buzuki import DoesNotExist, cache_utils
 from buzuki.mixins import Model
 from buzuki.songs import Song
-from buzuki.utils import greeklish
 
 
 class Artist(Model):
@@ -30,10 +29,6 @@ class Artist(Model):
     def all(cls):
         artists = cache_utils.get_artists().values()
         return [cls.frommetadata(artist) for artist in artists]
-
-    @property
-    def slug(self):
-        return greeklish(self.name)
 
     @property
     def genitive(self):
