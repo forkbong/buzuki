@@ -124,7 +124,7 @@ def login():
                 return redirect(next_url)
             return redirect(url_for('main.index'))
         else:
-            flash("Incorrect password.", 'danger')
+            flash("Λάθος κωδικός.", 'danger')
 
     return render_template('admin/login.html', form=form)
 
