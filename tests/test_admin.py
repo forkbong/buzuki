@@ -47,7 +47,7 @@ class TestLogin:
             follow_redirects=True,
         )
         assert resp.status_code == 200
-        assert b'Incorrect password' in resp.data
+        assert 'Λάθος κωδικός'.encode() in resp.data
 
 
 def test_logout(client):

@@ -10,7 +10,7 @@
 
 {% block content %}
 {% from "admin/formhelpers.html" import render_field, render_button %}
-<form method="post" action="{{ url_for('admin.login') }}">
+<form method="post" action="{{ url_for('admin.login') }}" novalidate>
   {{ form.csrf_token }}
   {{ render_field(form.password) }}
   {{ render_button('Σύνδεση') }}
