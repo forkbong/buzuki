@@ -1,6 +1,5 @@
-from flask import (Blueprint, abort, current_app, flash, redirect,
-                   render_template, request, session, url_for)
-from werkzeug.security import check_password_hash
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 
 from buzuki import DoesNotExist
 from buzuki.admin.forms import PasswordForm, SongForm
@@ -113,18 +112,12 @@ def login():
         return redirect(url_for('main.index'))
 
     if request.method == 'POST' and form.validate():
-        password = form.password.data.encode()
-        pwhash = current_app.config['PWHASH']
-        if check_password_hash(pwhash, password):
-            session['logged_in'] = True
-            # If redirected from a page that requires login, redirect back.
-            if 'next_url' in session:
-                next_url = session['next_url']
-                del session['next_url']
-                return redirect(next_url)
-            return redirect(url_for('main.index'))
-        else:
-            flash("Λάθος κωδικός.", 'danger')
+        session['logged_in'] = True
+        # If redirected from a page that requires login, redirect back.
+        next_url = session.pop('next_url', None)
+        if next_url:
+            return redirect(next_url)
+        return redirect(url_for('main.index'))
 
     return render_template('admin/login.html', form=form)
 
