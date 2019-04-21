@@ -9,6 +9,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css" />
     {% if production %}
     <link rel="stylesheet" href="{{ url_for('static', filename='dist/buzuki.min.css') }}">
     {% else %}
@@ -74,10 +75,12 @@
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js"></script>
     {% if production %}
     <script src="{{ url_for('static', filename='dist/buzuki.min.js') }}"></script>
     {% else %}
     <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='cookieconsent.js') }}"></script>
     <script src="{{ url_for('static', filename='transpose.js') }}"></script>
     {% endif %}
     {% block javascript %}
