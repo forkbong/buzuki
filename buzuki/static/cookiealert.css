@@ -1,0 +1,37 @@
+.cookiealert {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin: 0 !important;
+  z-index: 999;
+  opacity: 0;
+  border-radius: 0;
+  transform: translateY(100%);
+  transition: all 500ms ease-out;
+  color: #ffffff;
+  background: #343a40;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.cookiealert.show {
+  opacity: 1;
+  transform: translateY(0%);
+  transition-delay: 1000ms;
+}
+
+.cookiealert a {
+  text-decoration: underline;
+  color: rgba(255,255,255,.5);
+}
+
+.cookiealert a:hover {
+  color: rgba(255,255,255,.75);
+}
+
+.cookiealert .acceptcookies {
+  margin-left: 10px;
+}
