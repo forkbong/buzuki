@@ -1,0 +1,9 @@
+{
+  "name": "buzuki",
+  "private": true,
+  "dependencies": {
+    "grunt": "^1.1.0",
+    "grunt-contrib-cssmin": "^3.0.0",
+    "grunt-terser": "^1.0.0"
+  }
+}

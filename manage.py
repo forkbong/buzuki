@@ -83,7 +83,7 @@ def gunicorn(workers, host, port):
             self.cfg.set('workers', workers)
 
         def load(self):
-            return create_app()
+            return create_app(production=True)
 
     GunicornApplication().run()
 
