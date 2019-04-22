@@ -50,7 +50,7 @@ class FileHashFlask(Flask):
                 values['h'] = h
 
 
-def create_app(config_name='default'):
+def create_app(config_name='default', production=False):
     app = FileHashFlask(__name__)
 
     app.config.from_object(config[config_name])
@@ -58,8 +58,11 @@ def create_app(config_name='default'):
     app.jinja_env.lstrip_blocks = True
 
     @app.context_processor
-    def current_year():
-        return {'current_year': datetime.utcnow().year}
+    def context():
+        return {
+            'current_year': datetime.utcnow().year,
+            'production': production,
+        }
 
     @app.shell_context_processor
     def shell_context():

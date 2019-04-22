@@ -58,7 +58,6 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ url_for('static', filename='transpose.js') }}"></script>
 <script>
   transposeInit('/api/songs/{{ song.slug }}', '{{ song.slug }}', '#song-info');
 </script>
