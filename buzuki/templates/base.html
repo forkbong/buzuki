@@ -40,6 +40,15 @@
                    aria-label="Search">
             <ul id="autocomplete"></ul>
           </div>
+          {% if admin %}
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('admin.logout') }}" title="Αποσύνδεση">
+                <i class="fa fa-power-off" aria-hidden="true"></i>
+              </a>
+            </li>
+          </ul>
+          {% endif %}
         </div>
       </div>
     </nav>
@@ -52,19 +61,8 @@
         {{ message }}
       </div>
       {% endfor %}
-      <div class="row my-1">
-        <div class="col-lg-9">
-          <h2 id="header-title">{% block header %}{{ title }}{% endblock %}</h2>
-        </div>
-        <div class="col-lg-3 no-underline">
-          <h2 class="float-lg-right">
-            {% block extra_header %}{% endblock %}
-            {% if admin %}
-            <a href="{{ url_for('admin.add') }}" title="Νέο τραγούδι"><i class="fa fa-file" aria-hidden="true"></i></a>
-            <a href="{{ url_for('admin.logout') }}" title="Αποσύνδεση"><i class="fa fa-power-off" aria-hidden="true"></i></a>
-            {% endif %}
-          </h2>
-        </div>
+      <div class="my-3">
+        <h2 id="header-title">{% block header %}{{ title }}{% endblock %}</h2>
       </div>
       <div class="mt-2">
         {% block content %}{% endblock %}
