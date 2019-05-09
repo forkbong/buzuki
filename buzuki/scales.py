@@ -9,11 +9,12 @@ with open('buzuki/scales.yml') as f:
 
 
 class Scale(Model):
-    def __init__(self, name, ascending, descending, chords):
+    def __init__(self, name, ascending, descending, chords, structure):
         self.name = name
         self.ascending = ascending
         self.descending = descending
         self.chords = chords
+        self.structure = structure
         self.root = 'D'
 
     @classmethod
@@ -29,6 +30,7 @@ class Scale(Model):
             s.get('ascending'),
             s.get('descending'),
             s.get('chords'),
+            s.get('structure'),
         )
 
     @classmethod
