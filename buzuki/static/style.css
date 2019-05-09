@@ -51,10 +51,6 @@ a:hover {
   color: #212529;
 }
 
-div.no-underline a:hover {
-  text-decoration: none;
-}
-
 /* https://stackoverflow.com/a/28286277 */
 #autocomplete {
   position: absolute;
@@ -80,4 +76,20 @@ div.no-underline a:hover {
 
 #autocomplete > li.selected {
   background-color: #eeeeee;
+}
+
+a.dropdown-button {
+  font-size: 25px;
+  color: #444444;
+}
+
+a.dropdown-button:hover {
+  color: #222222;
+  text-decoration: none;
+}
+
+div.subtitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
