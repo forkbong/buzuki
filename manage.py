@@ -103,7 +103,8 @@ def download(output):
                 return False
         return True
 
-    songs = Song.all()
+    directory = app.config['SONGDIR']
+    songs = [Song.get(slug) for slug in os.listdir(directory)]
 
     with click.progressbar(
         [song for song in songs if should_download(song)],
