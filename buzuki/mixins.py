@@ -1,5 +1,8 @@
 import re
 
+from flask import abort
+
+from buzuki import DoesNotExist, InvalidNote
 from buzuki.utils import greeklish, unaccented
 
 
@@ -12,6 +15,13 @@ class Model:
         if isinstance(other, self.__class__):
             return self.slug == other.slug
         return False
+
+    @classmethod
+    def get_or_404(cls, *args, **kwargs):
+        try:
+            return cls.get(*args, **kwargs)
+        except (DoesNotExist, InvalidNote):
+            abort(404)
 
     @property
     def slug(self):
