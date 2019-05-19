@@ -6,7 +6,6 @@ from secrets import choice
 from flask import (Blueprint, abort, redirect, render_template, request,
                    session, url_for)
 
-from buzuki import DoesNotExist, InvalidNote
 from buzuki.artists import Artist
 from buzuki.decorators import add_slug_to_cookie
 from buzuki.scales import Scale
@@ -33,10 +32,7 @@ def index():
 @add_slug_to_cookie
 def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
-    try:
-        song = Song.get(slug, semitones=semitones, root=root, unicode=True)
-    except (DoesNotExist, InvalidNote):
-        abort(404)
+    song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     artist = Artist.get(song.artist_slug)
     related_songs = [song for song in artist.songs if song.slug != slug]
     related_title = (
@@ -62,10 +58,7 @@ def song(slug, semitones=None, root=None):
 @main.route('/songs/<slug>/<root>/print')
 def songprint(slug, semitones=None, root=None):
     """A song in a printable form."""
-    try:
-        song = Song.get(slug, semitones=semitones, root=root, unicode=True)
-    except (DoesNotExist, InvalidNote):
-        abort(404)
+    song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     return render_template('songprint.html', song=song)
 
 
@@ -98,10 +91,7 @@ def artists():
 @main.route('/artists/<slug>/')
 def artist(slug):
     """A list of all songs from given artist."""
-    try:
-        artist = Artist.get(slug)
-    except DoesNotExist:
-        abort(404)
+    artist = Artist.get_or_404(slug)
 
     if artist.num == 1:
         return redirect(url_for('main.song', slug=artist.songs[0].slug))
@@ -132,10 +122,7 @@ def scale(slug, root='D'):
     if not re.match('^[A-G][bs]?$', root):
         abort(404)
     root = re.sub('s', '#', root)
-    try:
-        scale = Scale.get(slug)
-    except DoesNotExist:
-        abort(404)
+    scale = Scale.get_or_404(slug)
     scale.root = root
     songs = [song for song in Song.all() if scale.name in song.scale]
     scales = [s for s in Scale.all() if s.slug != scale.slug]
