@@ -18,11 +18,13 @@ from IPython.terminal.ipapp import load_default_config
 from pygments import formatters, highlight, lexers
 from werkzeug.security import generate_password_hash
 
-from buzuki import cache_utils, create_app, elastic
+from buzuki import DoesNotExist, cache_utils, create_app, elastic
 from buzuki.artists import Artist
 from buzuki.elastic import es
+from buzuki.playlists import Playlist
 from buzuki.scales import Scale
 from buzuki.songs import Song
+from buzuki.utils import FLATS, SHARPS
 
 
 def pprint(obj):
@@ -221,6 +223,41 @@ def cache(artists, songs):
     if songs:
         songs = cache_utils.get_songs()
         pprint(songs)
+
+
+@cli.command()
+@click.argument('playlist_slug')
+def playlist(playlist_slug):
+    """Add song to playlist."""
+    try:
+        playlist = Playlist.get(playlist_slug)
+    except DoesNotExist as e:
+        sys.exit(str(e))
+
+    songs = [song.slug for song in Song.all() if song not in playlist]
+    try:
+        song_slug = subprocess.run(
+            ['fzf', '--no-sort', '--exact'],
+            input='\n'.join(songs),
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+        ).stdout.strip()
+    except FileNotFoundError as e:
+        sys.exit(str(e))
+
+    if not song_slug:
+        return
+
+    song = Song.get(song_slug)
+    # If the user selects nothing we leave the root empty, and the
+    # default root is used. If he wants to explicitly set the default
+    # root in case it's changed in the future, he has to select it.
+    default = song.scale[0:2].strip()
+    root = click.prompt(f'Root [{default}]', default='', show_default=False)
+    if root and root not in SHARPS + FLATS:
+        sys.exit(f'Invalid root: {root}')
+
+    playlist.add(song_slug, root)
 
 
 if __name__ == '__main__':

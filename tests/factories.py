@@ -9,4 +9,5 @@ def SongFactory(**kwargs):
         scale=kwargs.get('scale', 'scale'),
         rhythm=kwargs.get('rhythm', 'rhythm'),
         body=kwargs.get('body', 'body'),
+        root=kwargs.get('root', None),
     )
