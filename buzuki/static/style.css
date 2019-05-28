@@ -93,3 +93,19 @@ div.subtitle {
   justify-content: space-between;
   align-items: center;
 }
+
+.playlist-item {
+  margin-top: 5px;
+  align-items: center;
+  min-height: 40px;
+}
+
+.dropdown-item.playlist-name {
+  width: 80px;
+}
+
+.dropdown-item.playlist-name:active,
+.dropdown-item.playlist-name:hover {
+  color: inherit;
+  background-color: inherit;
+}

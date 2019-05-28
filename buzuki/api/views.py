@@ -5,6 +5,7 @@ import requests
 from flask import Blueprint, abort, jsonify, request
 
 from buzuki import DoesNotExist, InvalidNote, cache_utils, elastic
+from buzuki.playlists import Playlist
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -53,6 +54,35 @@ def scale(slug, root='D'):
         'title': scale.title,
         'info': scale.info,
     })
+
+
+@api.route('/playlists/', methods=['POST'])
+def playlists():
+    """Add a new playlist."""
+    raise NotImplementedError
+
+
+@api.route('/playlists/<slug>/songs/', methods=['GET', 'POST'])
+def playlist_songs(slug):
+    """Get list of songs or add a song in a playlist."""
+    playlist = Playlist.get(slug)
+    if request.method == 'POST':
+        song_slug = request.json['slug']
+        root = request.json.get('root')
+        try:
+            playlist.add(song_slug, root)
+        except InvalidNote:
+            return jsonify({'message': f"'{root}' is not a valid note"}), 400
+
+    return jsonify(playlist.get_data()['songs'])
+
+
+@api.route('/playlists/<slug>/songs/<song_slug>', methods=['DELETE'])
+def playlist_song(slug, song_slug):
+    """Remove a song from a playlist."""
+    playlist = Playlist.get(slug)
+    playlist.remove(song_slug)
+    return jsonify(playlist.get_data()['songs'])
 
 
 @api.route('/search/<query>/')

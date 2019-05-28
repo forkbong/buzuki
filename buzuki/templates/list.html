@@ -5,10 +5,10 @@
 {%- endblock %}
 
 {% block content %}
-{% for artist in artists %}
+{% for object in objects %}
 <div>
-  <a href="{{ url_for('main.artist', slug=artist.slug) }}">
-    {{ artist.name }} ({{ artist.num }})
+  <a href="{{ url_for(detail_url, slug=object.slug) }}">
+    {{ object.name }}{% if object.num %} ({{ object.num }}){% endif %}
   </a>
 </div>
 {% endfor %}
