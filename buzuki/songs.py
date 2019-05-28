@@ -12,13 +12,14 @@ from buzuki.utils import greeklish, to_unicode, transpose, transpose_to_root
 
 
 class Song(Model):
-    def __init__(self, name, artist, link, scale, rhythm, body):
+    def __init__(self, name, artist, link, scale, rhythm, body, root=None):
         self.name = name
         self.artist = artist
         self.link = link
         self.scale = scale
         self.rhythm = rhythm
         self.body = body
+        self.root = root
 
     @classmethod
     def get(cls, slug, semitones=None, root=None, unicode=False):
@@ -39,6 +40,7 @@ class Song(Model):
             old_root = song.scale[0:2].strip()
             song.scale = transpose_to_root(song.scale, old_root, root)
             song.body = transpose_to_root(song.body, old_root, root)
+            song.root = root
         if unicode:
             song.scale = to_unicode(song.scale)
             song.body = to_unicode(song.body)
@@ -68,6 +70,7 @@ class Song(Model):
             scale=song.get('scale'),
             rhythm=None,
             body=None,
+            root=song.get('root'),
         )
 
     @classmethod
@@ -137,6 +140,26 @@ class Song(Model):
     @property
     def artist_slug(self):
         return greeklish(self.artist)
+
+    @property
+    def playlists(self):
+        from buzuki.playlists import Playlist
+
+        playlists = []
+        for playlist in Playlist.all():
+            matches = [
+                song for song in playlist.songs if song.slug == self.slug
+            ]
+            match = matches[0] if matches else None
+
+            playlists.append({
+                'name': playlist.name,
+                'slug': playlist.slug,
+                'member': match is not None,
+                'root': match.root if match is not None else None,
+            })
+
+        return playlists
 
     def tofile(self):
         directory = app.config['SONGDIR']

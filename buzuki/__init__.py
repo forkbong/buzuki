@@ -67,6 +67,7 @@ def create_app(config_name='default', production=False):
     @app.shell_context_processor
     def shell_context():
         from buzuki.artists import Artist
+        from buzuki.playlists import Playlist
         from buzuki.scales import Scale
         from buzuki.songs import Song
         return {
@@ -74,6 +75,7 @@ def create_app(config_name='default', production=False):
             'Artist': Artist,
             'Song': Song,
             'Scale': Scale,
+            'Playlist': Playlist,
         }
 
     csrf.init_app(app)

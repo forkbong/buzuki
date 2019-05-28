@@ -1,4 +1,7 @@
+from pathlib import Path
+
 import pytest
+from flask import current_app as app
 
 from buzuki.songs import Song
 from tests.factories import SongFactory
@@ -64,18 +67,18 @@ def test_invalid_youtube_id(client, link):
 def test_tofile(client):
     song = SongFactory()
     song.tofile()
-    with open('/tmp/buzuki_test/name') as f:
-        assert f.read() == (
-            'name\n'
-            'artist\n'
-            'link\n'
-            '\n'
-            'scale\n'
-            '\n'
-            'rhythm\n'
-            '\n'
-            'body\n'
-        )
+    path = Path(app.config['SONGDIR']) / 'name'
+    assert path.read_text() == (
+        'name\n'
+        'artist\n'
+        'link\n'
+        '\n'
+        'scale\n'
+        '\n'
+        'rhythm\n'
+        '\n'
+        'body\n'
+    )
 
 
 def test_get(client):

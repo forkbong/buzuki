@@ -6,7 +6,8 @@ from flask import (Blueprint, abort, redirect, render_template, request,
                    session, url_for)
 
 from buzuki.artists import Artist
-from buzuki.decorators import add_slug_to_cookie
+from buzuki.decorators import add_slug_to_cookie, login_required
+from buzuki.playlists import Playlist
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -80,9 +81,10 @@ def random():
 def artists():
     """A list of all artists in the database."""
     return render_template(
-        'artists.html',
+        'list.html',
         title='Καλλιτέχνες',
-        artists=Artist.all(),
+        objects=Artist.all(),
+        detail_url='main.artist',
         admin=session.get('logged_in'),
     )
 
@@ -134,6 +136,32 @@ def scale(slug, root='D'):
     )
 
 
+@main.route('/playlists/')
+@login_required
+def playlists():
+    """A list of all playlists in the database."""
+    return render_template(
+        'list.html',
+        title='Λίστες',
+        objects=Playlist.all(),
+        detail_url='main.playlist',
+        admin=session.get('logged_in'),
+    )
+
+
+@main.route('/playlists/<slug>/')
+@login_required
+def playlist(slug):
+    """A list of all songs in a given playlist."""
+    playlist = Playlist.get_or_404(slug)
+    return render_template(
+        'index.html',
+        title=playlist.name,
+        songs=playlist.songs,
+        admin=session.get('logged_in'),
+    )
+
+
 @main.route('/search/')
 def search():
     query = request.args.get('q')
@@ -157,9 +185,10 @@ def search():
 
     if len(artists) > 1:
         return render_template(
-            'artists.html',
+            'list.html',
             title=query,
-            artists=artists,
+            objects=artists,
+            detail_url='main.artist',
             admin=session.get('logged_in'),
         )
 

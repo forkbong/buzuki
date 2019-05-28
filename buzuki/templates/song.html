@@ -19,6 +19,56 @@
         <span>
           {% include 'partials/transpose.html' %}
         </span>
+        {% if admin %}
+        <span>
+          <a href="#"
+             id="playlist-menu-button"
+             class="dropdown-button ml-1"
+             data-toggle="dropdown"
+             title="Λίστες">
+            <i class="fa fa-th-list" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="playlist-menu-button" style="width: 200px;">
+            <h1 class="dropdown-header">Λίστες</h1>
+            <div class="dropdown-divider"></div>
+            {% for playlist in song.playlists %}
+            <div class="playlist-item row">
+              <div class="dropdown-item playlist-name col">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox"
+                         id="check-{{ playlist.slug }}"
+                         class="custom-control-input playlist-checkbox"
+                         data-playlist-slug="{{ playlist.slug }}"
+                         {%- if playlist.member %}checked{% endif %}>
+                  <label class="custom-control-label" for="check-{{ playlist.slug }}">
+                    {{ playlist.name }}
+                  </label>
+                </div>
+              </div>
+              <div id="root-check-{{ playlist.slug }}"
+                   class="col mr-2 playlist-root"
+                   {%- if not playlist.member %} style="display: none;"{% endif %}>
+                <select class="custom-select" data-playlist-slug="{{ playlist.slug }}">
+                  <option {% if not playlist.root %}selected{% endif %}>-</option>
+                  <option {% if playlist.root == 'D'  %}selected {% endif %}value="D">D</option>
+                  <option {% if playlist.root == 'Ds' %}selected {% endif %}value="Ds">D♯</option>
+                  <option {% if playlist.root == 'E'  %}selected {% endif %}value="E">E</option>
+                  <option {% if playlist.root == 'F'  %}selected {% endif %}value="F">F</option>
+                  <option {% if playlist.root == 'Fs' %}selected {% endif %}value="Fs">F♯</option>
+                  <option {% if playlist.root == 'G'  %}selected {% endif %}value="G">G</option>
+                  <option {% if playlist.root == 'Gs' %}selected {% endif %}value="Gs">G♯</option>
+                  <option {% if playlist.root == 'A'  %}selected {% endif %}value="A">A</option>
+                  <option {% if playlist.root == 'As' %}selected {% endif %}value="As">A♯</option>
+                  <option {% if playlist.root == 'B'  %}selected {% endif %}value="B">B</option>
+                  <option {% if playlist.root == 'C'  %}selected {% endif %}value="C">C</option>
+                  <option {% if playlist.root == 'Cs' %}selected {% endif %}value="Cs">C♯</option>
+                </select>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </span>
+        {% endif %}
         <span>
           <a href="#"
              id="more-options-menu-button"
@@ -85,6 +135,7 @@
 
 {% block javascript %}
 <script>
+  playlistsInit('{{ song.slug }}', '{{ csrf_token() }}');
   transposeInit('/api/songs/{{ song.slug }}', '{{ song.slug }}', '#song-info');
 </script>
 {% endblock %}
