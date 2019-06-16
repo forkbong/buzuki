@@ -2,7 +2,9 @@ import json
 import re
 from secrets import choice
 
-from flask import (Blueprint, abort, redirect, render_template, request,
+from flask import Blueprint, abort
+from flask import current_app as app
+from flask import (redirect, render_template, request, send_from_directory,
                    session, url_for)
 
 from buzuki.artists import Artist
@@ -206,3 +208,13 @@ def search():
 def page_not_found(e):
     """Error 404 handler."""
     return render_template('404.html'), 404
+
+
+@main.route('/audio/<filename>')
+def audio(filename):
+    """Serve audio files.
+
+    For local development only. On production, these files are served via
+    nginx.
+    """
+    return send_from_directory(app.config['DIR'] / 'audio', filename)

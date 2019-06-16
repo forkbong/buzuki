@@ -98,6 +98,8 @@ def download(output):
 
     def should_download(song):
         """Return whether the song's video needs to be downloaded."""
+        if not song.youtube_id:
+            return False
         for file in os.listdir(output):
             base, extension = os.path.splitext(file)
             if base == f'{song.slug}_{song.youtube_id}':
