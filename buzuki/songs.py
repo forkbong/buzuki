@@ -1,5 +1,5 @@
-import os
 import re
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from flask import current_app as app
@@ -20,6 +20,8 @@ class Song(Model):
         self.rhythm = rhythm
         self.body = body
         self.root = root
+        self.directory: Path = app.config['DIR'] / 'songs'
+        self.directory.mkdir(mode=0o755, exist_ok=True)
 
     @classmethod
     def get(cls, slug, semitones=None, root=None, unicode=False):
@@ -49,13 +51,10 @@ class Song(Model):
 
     @classmethod
     def fromfile(cls, filename):
-        directory = app.config['SONGDIR']
-        path = os.path.join(directory, filename)
-        try:
-            with open(path) as f:
-                file = f.read()
-        except FileNotFoundError:
+        path: Path = app.config['DIR'] / 'songs' / filename
+        if not path.is_file():
             raise DoesNotExist(f"Song '{filename}' does not exist")
+        file = path.read_text()
         name, artist, link, rest = [x for x in file.split('\n', 3)]
         scale, rhythm, body = rest.strip('\n').split('\n\n', 2)
         song = cls(name, artist, link, scale, rhythm, body)
@@ -162,25 +161,22 @@ class Song(Model):
         return playlists
 
     def tofile(self):
-        directory = app.config['SONGDIR']
-        os.makedirs(directory, mode=0o755, exist_ok=True)
-        path = os.path.join(directory, self.slug)
-        with open(path, 'w') as f:
-            content = [self.name, self.artist, self.link, '', self.info(), '']
-            f.write('\n'.join(content))
+        path: Path = self.directory / self.slug
+        content = [self.name, self.artist, self.link, '', self.info(), '']
+        path.write_text('\n'.join(content))
         cache_utils.clear()
 
     def delete(self):
-        directory = app.config['SONGDIR']
-        path = os.path.join(directory, self.slug)
-        os.remove(path)
+        path: Path = self.directory / self.slug
+        path.unlink()
         cache_utils.clear()
 
     @staticmethod
     def delete_all():
-        directory = app.config['SONGDIR']
-        if not os.path.isdir(directory):
+        directory: Path = app.config['DIR'] / 'songs'
+        if not directory.is_dir():
             return
-        for file in os.scandir(directory):
-            os.remove(file.path)
+        path: Path
+        for path in directory.iterdir():
+            path.unlink()
         cache_utils.clear()
