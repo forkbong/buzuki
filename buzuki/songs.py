@@ -84,6 +84,9 @@ class Song(Model):
         """Extract youtube video id from url."""
         # https://gist.github.com/kmonsoor/2a1afba4ee127cce50a0
         url = self.link
+        if not url:
+            return None
+
         if not url.startswith('http'):
             url = 'http://' + url
 
