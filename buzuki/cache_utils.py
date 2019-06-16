@@ -8,7 +8,7 @@ There are two caches, song and artist, both of type Dict[str, Dict].
 See test_cache.py for examples.
 """
 
-import os
+from pathlib import Path
 
 from flask import current_app as app
 
@@ -49,10 +49,10 @@ def fill_cache():
     songs = {}
     artists = {}
 
-    directory = app.config['SONGDIR']
-    for filename in os.listdir(directory):
-        path = os.path.join(directory, filename)
-        with open(path) as f:
+    directory: Path = app.config['DIR'] / 'songs'
+    path: Path
+    for path in directory.iterdir():
+        with path.open() as f:
             name = f.readline().strip()
             slug = greeklish(name)
             artist = f.readline().strip()

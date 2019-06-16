@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pytest
 
@@ -9,7 +9,8 @@ from buzuki.songs import Song
 @pytest.fixture(scope='function')
 def client():
     app = create_app('testing')
-    os.makedirs(app.config['SONGDIR'], mode=0o755, exist_ok=True)
+    directory: Path = app.config['DIR'] / 'songs'
+    directory.mkdir(mode=0o755, parents=True, exist_ok=True)
     context = app.app_context()
     context.push()
 

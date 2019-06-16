@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 from multiprocessing import cpu_count
+from pathlib import Path
 from string import printable
 
 import click
@@ -103,7 +104,7 @@ def download(output):
                 return False
         return True
 
-    directory = app.config['SONGDIR']
+    directory = app.config['DIR'] / 'songs'
     songs = [Song.get(slug) for slug in os.listdir(directory)]
 
     with click.progressbar(
@@ -138,15 +139,15 @@ def hash(password):
 @cli.command()
 def filenames():
     """Check that song filenames and slugs match."""
-    directory = app.config['SONGDIR']
-    assert os.path.isdir(directory)
-    for filename in os.listdir(directory):
-        path = os.path.join(directory, filename)
-        song = Song.fromfile(path)
-        if filename != song.slug:
-            if click.confirm(f"{filename} -> {song.slug}?"):
-                new_path = os.path.join(directory, song.slug)
-                os.rename(path, new_path)
+    directory: Path = app.config['DIR'] / 'songs'
+    assert directory.is_dir()
+    path: Path
+    for path in directory.iterdir():
+        song = Song.fromfile(path.name)
+        if path.name != song.slug:
+            if click.confirm(f"{path.name} -> {song.slug}?"):
+                new_path = directory / song.slug
+                path.rename(new_path)
 
 
 @cli.command()

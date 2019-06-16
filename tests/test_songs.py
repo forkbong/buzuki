@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from flask import current_app as app
 
@@ -67,7 +65,7 @@ def test_invalid_youtube_id(client, link):
 def test_tofile(client):
     song = SongFactory()
     song.tofile()
-    path = Path(app.config['SONGDIR']) / 'name'
+    path = app.config['DIR'] / 'songs' / 'name'
     assert path.read_text() == (
         'name\n'
         'artist\n'
