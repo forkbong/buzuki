@@ -1,0 +1,12 @@
+[Unit]
+Description=Buzuki watch script
+Requires=redis.service
+After=redis.service
+
+[Service]
+Restart=always
+RestartSec=1
+ExecStart=/home/pi/buzuki/scripts/buzuki-watch.sh
+
+[Install]
+WantedBy=multi-user.target
