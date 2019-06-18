@@ -1,0 +1,11 @@
+[Unit]
+Description=Buzuki search
+
+[Service]
+Restart=always
+RestartSec=1
+Environment="BUZUKI_SONGDIR=/home/pi/documents/buzuki/songs/"
+ExecStart=/usr/local/bin/buzuki-search
+
+[Install]
+WantedBy=multi-user.target
