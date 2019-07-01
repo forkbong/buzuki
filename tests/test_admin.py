@@ -1,3 +1,4 @@
+from flask import current_app as app
 from flask import url_for
 
 from buzuki.songs import Song
@@ -24,21 +25,33 @@ class TestLogin:
         assert 'Έχεις ήδη συνδεθεί'.encode() in resp.data
 
     def test_redirect_and_login(self, client):
-        resp = client.get(url_for('admin.index'))
+        base = f'http://{app.config["SERVER_NAME"]}'
+        url = url_for('admin.add')
+        login_url = url_for('admin.login')
+
+        resp = client.get(url)
         assert resp.status_code == 302
-        resp = client.get(url_for('admin.index'), follow_redirects=True)
+        assert resp.location == f'{base}/admin/login/?next=/admin/add/'
+
+        resp = client.get(url, follow_redirects=True)
         assert resp.status_code == 200
         assert 'Συνδέσου για να συνεχίσεις'.encode() in resp.data
-        with client.session_transaction() as session:
-            assert session['next_url'] == url_for('admin.index')
-        resp = client.post(
-            url_for('admin.login'),
-            data={'password': 'admin'},
-            follow_redirects=True,
-        )
-        with client.session_transaction() as session:
-            assert 'next_url' not in session
-        assert b'Admin' in resp.data
+        assert (
+            b'<input id="next" name="next" type="hidden" value="/admin/add/">'
+        ) in resp.data
+
+        data = {
+            'password': 'admin',
+            'next': '/admin/add/',
+        }
+
+        resp = client.post(login_url, data=data)
+        assert resp.status_code == 302
+        assert resp.location == f'{base}/admin/add/'
+
+        resp = client.get(f'{base}/admin/add/')
+        assert resp.status_code == 200
+        assert 'Νέο τραγούδι'.encode() in resp.data
 
     def test_wrong_password(self, client):
         resp = client.post(
