@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask_wtf import FlaskForm
 from werkzeug.security import check_password_hash
-from wtforms import PasswordField, StringField, TextAreaField
+from wtforms import HiddenField, PasswordField, StringField, TextAreaField
 from wtforms.validators import URL, DataRequired
 
 
@@ -29,6 +29,7 @@ class SongForm(FlaskForm):
 
 class PasswordForm(FlaskForm):
     password = PasswordField('Κωδικός', [DataRequired('Έλα σε παρακαλώ πολύ')])
+    next = HiddenField('next')
 
     def validate(self, *args, **kwargs):
         if not super().validate(*args, **kwargs):

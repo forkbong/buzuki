@@ -111,10 +111,14 @@ def login():
         flash("Έχεις ήδη συνδεθεί.", 'info')
         return redirect(url_for('main.index'))
 
-    if request.method == 'POST' and form.validate():
+    if request.method == 'GET':
+        next_url = request.args.get('next')
+        if next_url:
+            form.next.data = next_url
+    elif request.method == 'POST' and form.validate():
         session['logged_in'] = True
         # If redirected from a page that requires login, redirect back.
-        next_url = session.pop('next_url', None)
+        next_url = form.next.data
         if next_url:
             return redirect(next_url)
         return redirect(url_for('main.index'))

@@ -13,6 +13,7 @@
 <form method="post" action="{{ url_for('admin.login') }}" novalidate>
   {{ form.csrf_token }}
   {{ render_field(form.password) }}
+  {{ form.next }}
   {{ render_button('Σύνδεση') }}
 </form>
 {% endblock %}
