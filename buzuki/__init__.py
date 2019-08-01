@@ -2,20 +2,15 @@ import hashlib
 import os.path
 from datetime import datetime
 
+from cachelib import RedisCache
 from flask import Flask
-from flask_caching import Cache
 from flask_wtf import CSRFProtect
 from werkzeug.security import safe_join
 
 from config import config
 
 csrf = CSRFProtect()
-cache = Cache(config={
-    'CACHE_TYPE': 'redis',
-    # The default host is 'localhost'. We use 'redis' because gitlab-ci
-    # uses that, and we redirect redis to localhost in `/etc/hosts`.
-    'CACHE_REDIS_HOST': 'redis',
-})
+cache = RedisCache(default_timeout=0, key_prefix='buzuki_cache_')
 
 
 class DoesNotExist(Exception):
@@ -79,7 +74,6 @@ def create_app(config_name='default', production=False):
         }
 
     csrf.init_app(app)
-    cache.init_app(app)
 
     from buzuki.views import main
     app.register_blueprint(main)
