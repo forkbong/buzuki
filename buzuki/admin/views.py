@@ -130,4 +130,4 @@ def login():
 def logout():
     if session.get('logged_in'):
         session['logged_in'] = False
-    return redirect(url_for('main.index'))
+    return redirect(request.args.get('next') or url_for('main.index'))
