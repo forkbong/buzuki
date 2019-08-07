@@ -1,6 +1,15 @@
 'use strict';
 
 const transposeInit = function transposeInit(apiUrl, slug, contentDivId) {
+  const setLogoutNext = function setLogoutNext(url) {
+    const logout = $('#logout');
+    if (logout) {
+      const parts = logout.attr('href').split('=');
+      parts[1] = url;
+      logout.attr('href', parts.join('='));
+    }
+  };
+
   $('.transpose-dropdown-item').click(function () {
     const root = $(this).data('root');
     fetch(`${apiUrl}/${root}`)
@@ -9,7 +18,9 @@ const transposeInit = function transposeInit(apiUrl, slug, contentDivId) {
         $(contentDivId).html(data.info);
         let parts = window.location.pathname.split('/');
         parts = ['', parts[1], parts[2], root];
-        window.history.pushState(null, '', parts.join('/'));
+        const url = parts.join('/');
+        window.history.pushState(null, '', url);
+        setLogoutNext(url);
         if (data.title) {
           $('#header-title').html(data.title);
         }
@@ -24,7 +35,9 @@ const transposeInit = function transposeInit(apiUrl, slug, contentDivId) {
   });
 
   window.onpopstate = function (event) {
-    const parts = window.location.pathname.split('/');
+    const url = window.location.pathname;
+    setLogoutNext(url);
+    const parts = url.split('/');
     const root = parts[3];
     fetch(`${apiUrl}/${root}`)
       .then((resp) => resp.json())
