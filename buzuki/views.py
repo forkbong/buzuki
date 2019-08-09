@@ -8,8 +8,9 @@ from flask import (redirect, render_template, request, send_from_directory,
                    session, url_for)
 
 from buzuki.artists import Artist
-from buzuki.decorators import add_slug_to_cookie, login_required
-from buzuki.playlists import Playlist
+from buzuki.decorators import (add_slug_to_cookie, delete_cookie,
+                               login_required, set_cookie)
+from buzuki.playlists import Playlist, get_selected_playlist
 from buzuki.scales import Scale
 from buzuki.songs import Song
 
@@ -18,6 +19,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 @main.route('/songs/')
+@delete_cookie('playlist')
 def index():
     """A list of all songs in the database."""
     return render_template(
@@ -34,6 +36,14 @@ def index():
 @add_slug_to_cookie
 def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
+    playlist: Playlist = get_selected_playlist()
+    if playlist and not root:
+        # TODO: Do not iterate
+        for song in playlist.songs:
+            if song.slug == slug:
+                root = song.root
+                break
+
     song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     artist = Artist.get(song.artist_slug)
     related_songs = [song for song in artist.songs if song.slug != slug]
@@ -68,14 +78,17 @@ def songprint(slug, semitones=None, root=None):
 def random():
     """Redirect to a random song.
 
+    The song is chosen randomly from the selected playlist, or the whole
+    database, if no playlist is selected.
+
     The last accessed songs, which are located in the 'latest_songs' cookie,
     via the `add_slug_to_cookie` decorator, are excluded from the selection.
     """
+    playlist_slug = request.cookies.get('playlist')
+    songs = Playlist.get(playlist_slug).songs if playlist_slug else Song.all()
     cookie = request.cookies.get('latest_songs')
     latest_songs = json.loads(cookie) if cookie else []
-    song = choice([
-        song for song in Song.all() if song.slug not in latest_songs
-    ])
+    song = choice([song for song in songs if song.slug not in latest_songs])
     return redirect(url_for('main.song', slug=song.slug))
 
 
@@ -153,6 +166,7 @@ def playlists():
 
 @main.route('/playlists/<slug>/')
 @login_required
+@set_cookie('playlist', 'slug')
 def playlist(slug):
     """A list of all songs in a given playlist."""
     playlist = Playlist.get_or_404(slug)

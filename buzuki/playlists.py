@@ -3,6 +3,7 @@ from pathlib import Path
 
 import yaml
 from flask import current_app as app
+from flask import g, request
 
 from buzuki import DoesNotExist, InvalidNote
 from buzuki.mixins import Model
@@ -92,3 +93,17 @@ class Playlist(Model):
     def remove(self, song_slug):
         self.songs = [song for song in self.songs if song.slug != song_slug]
         self.tofile()
+
+
+def get_selected_playlist():
+    playlist = getattr(g, 'playlist', None)
+    if playlist:
+        return playlist
+
+    playlist_slug = request.cookies.get('playlist')
+    if playlist_slug:
+        playlist = Playlist.get(playlist_slug)
+        g.playlist = playlist
+        return playlist
+
+    return None
