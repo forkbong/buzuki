@@ -3,7 +3,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 
 from buzuki import DoesNotExist
 from buzuki.admin.forms import PasswordForm, SongForm
-from buzuki.decorators import login_required
+from buzuki.decorators import delete_cookie, login_required
 from buzuki.songs import Song
 
 admin = Blueprint('admin', __name__)
@@ -11,6 +11,7 @@ admin = Blueprint('admin', __name__)
 
 @admin.route('/')
 @login_required
+@delete_cookie('playlist')
 def index():
     """A list of all songs in the database."""
     songs = Song.all()
@@ -127,6 +128,7 @@ def login():
 
 
 @admin.route('/logout/')
+@delete_cookie('playlist')
 def logout():
     if session.get('logged_in'):
         session['logged_in'] = False
