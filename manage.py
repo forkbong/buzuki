@@ -11,6 +11,7 @@ from string import printable
 
 import click
 import IPython
+import requests
 from flask import current_app as app
 from flask.cli import FlaskGroup, with_appcontext
 from gunicorn.app.base import BaseApplication
@@ -25,7 +26,7 @@ from buzuki.elastic import es
 from buzuki.playlists import Playlist
 from buzuki.scales import Scale
 from buzuki.songs import Song
-from buzuki.utils import FLATS, SHARPS
+from buzuki.utils import FLATS, SHARPS, unaccented
 
 
 def pprint(obj):
@@ -93,6 +94,15 @@ def gunicorn(workers, host, port):
     GunicornApplication().run()
 
 
+def itersongs(songs, label):
+    with click.progressbar(
+        songs,
+        label=label,
+        item_show_func=lambda item: getattr(item, 'name', ''),
+    ) as bar:
+        yield from bar
+
+
 @cli.command()
 @click.option('-o', '--output', help="Target directory.", default='videos')
 def download(output):
@@ -111,20 +121,18 @@ def download(output):
     directory = app.config['DIR'] / 'songs'
     songs = [Song.get(slug) for slug in os.listdir(directory)]
 
-    with click.progressbar(
+    for song in itersongs(
         [song for song in songs if should_download(song)],
-        label="Downloading video files",
-        item_show_func=lambda item: getattr(item, 'name', ''),
-    ) as bar:
-        for song in bar:
-            subprocess.run([
-                'youtube-dl',
-                '--quiet',
-                '--no-warnings',
-                '--output',
-                os.path.join(output, f'{song.slug}_{song.youtube_id}'),
-                song.link,
-            ])
+        "Downloading video files",
+    ):
+        subprocess.run([
+            'youtube-dl',
+            '--quiet',
+            '--no-warnings',
+            '--output',
+            os.path.join(output, f'{song.slug}_{song.youtube_id}'),
+            song.link,
+        ])
 
     for file in os.listdir(output):
         base, extension = os.path.splitext(file)
@@ -261,6 +269,43 @@ def playlist(playlist_slug):
         sys.exit(f'Invalid root: {root}')
 
     playlist.add(song_slug, root)
+
+
+@cli.command()
+def checklinks():
+    """Check if YouTube links are still valid."""
+    invalid = []
+    missing = []
+    directory = app.config['DIR'] / 'songs'
+    songs = [Song.get(slug) for slug in os.listdir(directory)]
+    songs.sort(key=lambda song: unaccented(song.name))
+    for song in itersongs(songs, "Checking"):
+        if not song.youtube_id:
+            missing.append(song.name)
+            path: Path = app.config['DIR'] / 'audio' / f'{song.slug}.mp3'
+            assert path.is_file()
+            continue
+        url = f'http://img.youtube.com/vi/{song.youtube_id}/mqdefault.jpg'
+        try:
+            response = requests.get(url)
+        except requests.ConnectionError as e:
+            sys.exit(str(e))
+        if response.status_code != 200:
+            invalid.append((response.status_code, song.name))
+
+    if missing:
+        print()
+        print("Missing")
+        print("-------")
+        for song_name in missing:
+            print(song_name)
+
+    if invalid:
+        print()
+        print("Invalid")
+        print("-------")
+        for status_code, song_name in invalid:
+            print(status_code, song_name)
 
 
 if __name__ == '__main__':
