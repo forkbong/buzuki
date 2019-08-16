@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import os
 import re
 import subprocess
 import sys
@@ -12,11 +11,13 @@ from string import printable
 import click
 import IPython
 import requests
+import youtube_dl
 from flask import current_app as app
 from flask.cli import FlaskGroup, with_appcontext
 from gunicorn.app.base import BaseApplication
 from gunicorn.config import Config as GunicornConfig
 from IPython.terminal.ipapp import load_default_config
+from mutagen.id3 import COMM, ID3
 from pygments import formatters, highlight, lexers
 from werkzeug.security import generate_password_hash
 
@@ -92,53 +93,6 @@ def gunicorn(workers, host, port):
             return create_app(production=True)
 
     GunicornApplication().run()
-
-
-def itersongs(songs, label):
-    with click.progressbar(
-        songs,
-        label=label,
-        item_show_func=lambda item: getattr(item, 'name', ''),
-    ) as bar:
-        yield from bar
-
-
-@cli.command()
-@click.option('-o', '--output', help="Target directory.", default='videos')
-def download(output):
-    """Download all youtube videos."""
-
-    def should_download(song):
-        """Return whether the song's video needs to be downloaded."""
-        if not song.youtube_id:
-            return False
-        for file in os.listdir(output):
-            base, extension = os.path.splitext(file)
-            if base == f'{song.slug}_{song.youtube_id}':
-                return False
-        return True
-
-    directory = app.config['DIR'] / 'songs'
-    songs = [Song.get(slug) for slug in os.listdir(directory)]
-
-    for song in itersongs(
-        [song for song in songs if should_download(song)],
-        "Downloading video files",
-    ):
-        subprocess.run([
-            'youtube-dl',
-            '--quiet',
-            '--no-warnings',
-            '--output',
-            os.path.join(output, f'{song.slug}_{song.youtube_id}'),
-            song.link,
-        ])
-
-    for file in os.listdir(output):
-        base, extension = os.path.splitext(file)
-        if not any(base == f'{song.slug}_{song.youtube_id}' for song in songs):
-            if click.confirm(f"{file} does not match any song. Delete?"):
-                os.unlink(os.path.join(output, file))
 
 
 @cli.command()
@@ -272,40 +226,106 @@ def playlist(playlist_slug):
 
 
 @cli.command()
-def checklinks():
-    """Check if YouTube links are still valid."""
-    invalid = []
-    missing = []
-    directory = app.config['DIR'] / 'songs'
-    songs = [Song.get(slug) for slug in os.listdir(directory)]
-    songs.sort(key=lambda song: unaccented(song.name))
-    for song in itersongs(songs, "Checking"):
-        if not song.youtube_id:
-            missing.append(song.name)
-            path: Path = app.config['DIR'] / 'audio' / f'{song.slug}.mp3'
-            assert path.is_file()
-            continue
+def check():
+    """Check and fix audio files."""
+
+    def clear_metadata(filename):
+        audio = ID3(filename)
+        keys = list(audio.keys())
+        if keys:
+            for key in keys:
+                audio.delall(key)
+            audio.save()
+
+    def set_comment(filename, comment):
+        audio = ID3(filename)
+        audio.add(COMM(encoding=3, text=comment))
+        audio.save()
+
+    def get_comment(filename):
+        audio = ID3(filename)
+        comments = audio.getall("COMM")
+        if not comments:
+            return
+        return comments[0].text[0]
+
+    def download(song):
+        """Download `song`'s YouTube video and convert to mp3."""
+        filename = ''
+
+        def download_hook(d):
+            nonlocal filename
+            if d['status'] == 'finished':
+                filename = d['filename']
+                print("Done downloading, now converting...")
+
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'progress_hooks': [download_hook],
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            try:
+                ydl.download([song.link])
+            except youtube_dl.DownloadError as e:
+                print(click.style(
+                    f"Couldn't download {song.name}: {e}", fg='bright_red'
+                ))
+                return
+
+        path = Path(filename).with_suffix('.mp3')
+        path.rename(song.audio_path)
+        set_comment(song.audio_path, song.youtube_id)
+
+    def check_link(song):
+        """Return whether `song`'s YouTube link is still valid."""
         url = f'http://img.youtube.com/vi/{song.youtube_id}/mqdefault.jpg'
         try:
             response = requests.get(url)
         except requests.ConnectionError as e:
             sys.exit(str(e))
         if response.status_code != 200:
-            invalid.append((response.status_code, song.name))
+            return False
+        return True
 
-    if missing:
-        print()
-        print("Missing")
-        print("-------")
-        for song_name in missing:
-            print(song_name)
-
-    if invalid:
-        print()
-        print("Invalid")
-        print("-------")
-        for status_code, song_name in invalid:
-            print(status_code, song_name)
+    directory: Path = app.config['DIR'] / 'songs'
+    songs = [Song.get(path.name) for path in directory.iterdir()]
+    songs.sort(key=lambda song: unaccented(song.name))
+    num = len(songs)
+    for i, song in enumerate(songs, start=1):
+        print(f"{i}/{num}", end='\t')
+        if song.youtube_id:
+            if not check_link(song):
+                assert song.audio_path.is_file()
+                print(click.style(
+                    f"{song.name} has invalid youtube id", fg='bright_red'
+                ))
+            elif song.audio_path.is_file():
+                youtube_id = get_comment(song.audio_path)
+                if song.youtube_id != youtube_id:
+                    print(
+                        f"{song.name} had changed "
+                        f"({song.youtube_id} != {youtube_id})"
+                    )
+                    if click.confirm("Replace?"):
+                        song.audio_path.unlink()
+                        print(f"Downloading {song.name}...")
+                        download(song)
+                        print()
+                else:
+                    print(song.name, "is OK")
+            else:
+                print(f"Downloading {song.name}...")
+                download(song)
+                print()
+        else:
+            assert song.audio_path.is_file()
+            print(song.name, "has no youtube id but audio is downloaded")
+            clear_metadata(song.audio_path)
 
 
 if __name__ == '__main__':
