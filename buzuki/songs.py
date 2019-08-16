@@ -183,3 +183,10 @@ class Song(Model):
         for path in directory.iterdir():
             path.unlink()
         cache_utils.clear()
+
+    @property
+    def audio_path(self):
+        return app.config['DIR'] / 'audio' / f'{self.slug}.mp3'
+
+    def has_audio(self):
+        return self.audio_path.is_file()
