@@ -108,6 +108,14 @@
               <i class="fa fa-print" aria-hidden="true"></i>
               &nbsp;Εκτύπωση
             </a>
+            {% if song.youtube_id %}
+            <a class="dropdown-item"
+               href="{{ song.link }}"
+               target="_blank">
+              <i class="fa fa-youtube-play" aria-hidden="true"></i>
+              &nbsp;YouTube
+            </a>
+            {% endif %}
           </div>
         </span>
       </span>
@@ -115,17 +123,17 @@
     <pre class="mt-2" id="song-info">{{ song.info(html=True)|safe}}</pre>
   </div>
   <div class="col-lg-5">
-    {% if song.youtube_id %}
+    {% if song.has_audio() %}
+    <audio controls preload="none" style="width: 100%;">
+      <source src="{{ url_for('main.audio', filename='{}.mp3'.format(song.slug)) }}" type="audio/mpeg"/>
+    </audio>
+    {% elif song.youtube_id %}
     <div class="embed-responsive embed-responsive-16by9">
       <iframe class="embed-responsive-item"
               src="https://www.youtube.com/embed/{{ song.youtube_id }}"
               title="Video">
       </iframe>
     </div>
-    {% else %}
-    <audio controls preload="none" style="width: 100%;">
-      <source src="{{ url_for('main.audio', filename='{}.mp3'.format(song.slug)) }}" type="audio/mpeg"/>
-    </audio>
     {% endif %}
     {% if songs %}
     <div class="mt-3">
