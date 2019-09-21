@@ -39,11 +39,10 @@ def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
     playlist = get_selected_playlist()
     if playlist and not root:
-        # TODO: Do not iterate
-        for song in playlist.songs:
-            if song.slug == slug:
-                root = song.root
-                break
+        try:
+            root = playlist.roots[slug]
+        except KeyError:
+            pass
 
     song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     artist = Artist.get(song.artist_slug)

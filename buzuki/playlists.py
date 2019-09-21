@@ -13,9 +13,10 @@ from buzuki.utils import unaccented
 
 
 class Playlist(Model):
-    def __init__(self, name, songs):
+    def __init__(self, name, songs, roots={}):
         self.name = name
         self.songs = songs
+        self.roots = roots
         self.num = len(songs)
         self.directory: Path = app.config['DIR'] / 'playlists'
         self.directory.mkdir(mode=0o755, exist_ok=True)
@@ -40,10 +41,14 @@ class Playlist(Model):
         except FileNotFoundError:
             raise DoesNotExist(f"Playlist '{slug}' does not exist")
 
-        return cls(
-            name=data['name'],
-            songs=[Song.frommetadata(song) for song in data['songs']],
-        )
+        songs = []
+        roots = {}
+        for song_data in data['songs']:
+            songs.append(Song.frommetadata(song_data))
+            if 'root' in song_data:
+                roots[song_data['slug']] = song_data['root']
+
+        return cls(name=data['name'], songs=songs, roots=roots)
 
     @classmethod
     def all(cls):
