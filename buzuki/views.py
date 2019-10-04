@@ -177,6 +177,21 @@ def playlist(slug):
     )
 
 
+@main.route('/complement/<slug>/')
+@login_required
+def complement(slug):
+    """A list of all songs in a given playlist."""
+    playlist = Playlist.get_or_404(slug)
+    all_songs = Song.all()
+    songs = [song for song in all_songs if song not in playlist.songs]
+    return render_template(
+        'index.html',
+        title=playlist.name,
+        songs=songs,
+        admin=session.get('logged_in'),
+    )
+
+
 @main.route('/search/')
 def search():
     query = request.args.get('q')
