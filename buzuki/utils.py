@@ -1,4 +1,5 @@
 import re
+import unicodedata
 
 from buzuki import InvalidNote
 
@@ -77,9 +78,9 @@ def greeklish(string: str) -> str:
 
 
 def unaccented(string: str) -> str:
-    """Return `string` lowercase and not accented."""
-    table = str.maketrans('άέήίόύώϊΐ', 'αεηιουωιι')
-    return string.lower().translate(table)
+    """Return `string` lowercase and unaccented."""
+    string = string.lower()
+    return re.sub(r'[\u0300-\u036f]', '', unicodedata.normalize('NFD', string))
 
 
 def to_unicode(string: str) -> str:

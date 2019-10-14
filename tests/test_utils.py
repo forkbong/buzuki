@@ -3,7 +3,7 @@ from textwrap import dedent
 import pytest
 
 from buzuki import InvalidNote
-from buzuki.utils import distance, greeklish, transpose
+from buzuki.utils import distance, greeklish, transpose, unaccented
 
 
 def test_distance():
@@ -87,3 +87,13 @@ class TestTraspose:
 ])
 def test_greeklish(string, expected):
     assert greeklish(string) == expected
+
+
+@pytest.mark.parametrize('string, expected', [
+    ('ασδφ', 'ασδφ'),
+    ('τεστ τεστ', 'τεστ τεστ'),
+    ('Τουτ\' οι μπάτσοι', 'τουτ\' οι μπατσοι'),
+    ('Γιατί φουμάρω κοκαΐνη', 'γιατι φουμαρω κοκαινη'),
+])
+def test_unaccented(string, expected):
+    assert unaccented(string) == expected
