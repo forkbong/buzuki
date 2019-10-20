@@ -89,6 +89,7 @@
     {% if production %}
     <script src="{{ url_for('static', filename='dist/buzuki.min.js') }}"></script>
     {% else %}
+    <script src="{{ url_for('static', filename='utils.js') }}"></script>
     <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
     <script src="{{ url_for('static', filename='cookiealert.js') }}"></script>
     <script src="{{ url_for('static', filename='playlists.js') }}"></script>

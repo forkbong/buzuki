@@ -148,6 +148,6 @@
 {% block javascript %}
 <script>
   playlistsInit('{{ song.slug }}', '{{ csrf_token() }}');
-  transposeInit('/api/songs/{{ song.slug }}', '{{ song.slug }}', '#song-info');
+  transposeInit('/api/songs/{{ song.slug }}', '{{ song.slug }}', 'song-info');
 </script>
 {% endblock %}
