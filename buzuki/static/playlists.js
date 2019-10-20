@@ -1,9 +1,11 @@
 'use strict';
 
-const playlistsInit = function playlistsInit(songSlug, csrfToken) {
+/* global addEventListeners */
+
+const playlistsInit = (songSlug, csrfToken) => {
   // Allow Bootstrap dropdown menus to have forms/checkboxes inside,
   // and when clicking on a dropdown item, the menu doesn't disappear.
-  $(document).on('click', '.custom-control, .custom-select', (event) => {
+  addEventListeners('.custom-control,.custom-select', 'click', (event) => {
     event.stopPropagation();
   });
 
@@ -13,7 +15,7 @@ const playlistsInit = function playlistsInit(songSlug, csrfToken) {
     'Content-Type': 'application/json',
   };
 
-  const add = function add(playlistSlug, root = null) {
+  const add = (playlistSlug, root = null) => {
     const body = {
       slug: songSlug,
       root,
@@ -25,7 +27,7 @@ const playlistsInit = function playlistsInit(songSlug, csrfToken) {
     });
   };
 
-  const remove = function remove(playlistSlug) {
+  const remove = (playlistSlug) => {
     const body = {slug: songSlug};
     fetch(`/api/playlists/${playlistSlug}/songs/${songSlug}`, {
       method: 'delete',
@@ -34,23 +36,23 @@ const playlistsInit = function playlistsInit(songSlug, csrfToken) {
     });
   };
 
-  $('.playlist-checkbox').on('change', (event) => {
-    const $element = $(event.target);
-    const $elementRoot = $(`#root-${$element.attr('id')}`);
-    const playlistSlug = $element.data('playlist-slug');
-    if ($element.is(':checked')) {
+  addEventListeners('.playlist-checkbox', 'change', (event) => {
+    const element = event.target;
+    const elementRoot = document.getElementById(`root-${element.id}`);
+    const playlistSlug = element.getAttribute('data-playlist-slug');
+    if (element.checked) {
       add(playlistSlug);
-      $elementRoot.show();
+      elementRoot.style.display = 'block';
     } else {
       remove(playlistSlug);
-      $elementRoot.hide();
+      elementRoot.style.display = 'none';
     }
   });
 
-  $('.playlist-root').on('change', (event) => {
-    const $element = $(event.target);
-    const playlistSlug = $element.data('playlist-slug');
-    let root = event.target.value;
+  addEventListeners('.playlist-root', 'change', (event) => {
+    const element = event.target;
+    const playlistSlug = element.getAttribute('data-playlist-slug');
+    let root = element.value;
     if (root === '-') {
       root = null;
     }

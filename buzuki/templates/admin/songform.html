@@ -25,5 +25,5 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='vendor/autosize.min.js') }}"></script>
-<script>autosize($('textarea'));</script>
+<script>autosize(document.querySelectorAll('textarea'));</script>
 {% endblock %}
