@@ -1,40 +1,48 @@
 'use strict';
 
-const transposeInit = function transposeInit(apiUrl, slug, contentDivId) {
-  const setLogoutNext = function setLogoutNext(url) {
-    const logout = $('#logout');
+/* global addEventListeners */
+
+const transposeInit = (apiUrl, slug, contentDivId) => {
+  const setHtml = (elementId, html) => {
+    const element = document.getElementById(elementId);
+    element.innerHTML = html;
+  };
+
+  const setLogoutNext = (url) => {
+    const logout = document.getElementById('logout');
     if (logout) {
-      const parts = logout.attr('href').split('=');
+      const parts = logout.getAttribute('href').split('=');
       parts[1] = url;
-      logout.attr('href', parts.join('='));
+      logout.setAttribute('href', parts.join('='));
     }
   };
 
-  $('.transpose-dropdown-item').click(function () {
-    const root = $(this).data('root');
+  addEventListeners('.transpose-dropdown-item', 'click', (event) => {
+    const element = event.target;
+    const root = element.getAttribute('data-root');
     fetch(`${apiUrl}/${root}`)
       .then((resp) => resp.json())
       .then((data) => {
-        $(contentDivId).html(data.info);
+        setHtml(contentDivId, data.info);
+        if (data.title) {
+          setHtml('header-title', data.title);
+        }
         let parts = window.location.pathname.split('/');
         parts = ['', parts[1], parts[2], root];
         const url = parts.join('/');
         window.history.pushState(null, '', url);
         setLogoutNext(url);
-        if (data.title) {
-          $('#header-title').html(data.title);
-        }
       });
     if (slug) {
-      const saveBtn = $('#save-button');
-      const printBtn = $('#print-button');
-      saveBtn.prop('hidden', false);
-      saveBtn.attr('href', `/admin/save/${slug}/${root}`);
-      printBtn.attr('href', `/songs/${slug}/${root}/print`);
+      const saveBtn = document.getElementById('save-button');
+      const printBtn = document.getElementById('print-button');
+      saveBtn.removeAttribute('hidden');
+      saveBtn.setAttribute('href', `/admin/save/${slug}/${root}`);
+      printBtn.setAttribute('href', `/songs/${slug}/${root}/print`);
     }
   });
 
-  window.onpopstate = function (event) {
+  window.onpopstate = (event) => {
     const url = window.location.pathname;
     setLogoutNext(url);
     const parts = url.split('/');
@@ -42,21 +50,21 @@ const transposeInit = function transposeInit(apiUrl, slug, contentDivId) {
     fetch(`${apiUrl}/${root}`)
       .then((resp) => resp.json())
       .then((data) => {
-        $(contentDivId).html(data.info);
+        setHtml(contentDivId, data.info);
         if (data.title) {
-          $('#header-title').html(data.title);
+          setHtml('header-title', data.title);
         }
       });
     event.preventDefault();
     if (slug) {
-      const saveBtn = $('#save-button');
-      const printBtn = $('#print-button');
+      const saveBtn = document.getElementById('save-button');
+      const printBtn = document.getElementById('print-button');
       if (root) {
-        saveBtn.prop('hidden', false);
-        saveBtn.attr('href', `/admin/save/${slug}/${root}`);
-        printBtn.attr('href', `/songs/${slug}/${root}/print`);
+        saveBtn.removeAttribute('hidden');
+        saveBtn.setAttribute('href', `/admin/save/${slug}/${root}`);
+        printBtn.setAttribute('href', `/songs/${slug}/${root}/print`);
       } else {
-        saveBtn.prop('hidden', true);
+        saveBtn.setAttribute('hidden', true);
       }
     }
   };
