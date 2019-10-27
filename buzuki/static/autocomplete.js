@@ -4,6 +4,8 @@
   const autocomplete = document.getElementById('autocomplete');
   const input = document.getElementById('search-input');
 
+  let timeout = null;
+
   const move = () => {
     autocomplete.style.left = `${input.offsetLeft}px`;
     autocomplete.style.top = `${input.offsetTop + input.offsetHeight - 2}px`;
@@ -25,6 +27,7 @@
   };
 
   const search = () => {
+    clearTimeout(timeout);
     const query = input.value
       .replace(/[!@#$%^&*()\-_=+'"\s]+/gu, ' ')
       .trim();
@@ -33,21 +36,23 @@
       autocomplete.style.display = 'none';
       return;
     }
-    fetch(`/api/autocomplete/?q=${query}`)
-      .then((resp) => resp.json())
-      .then((data) => {
-        if (!data.length) {
-          autocomplete.innerHTML = '';
-          autocomplete.style.display = 'none';
-          return;
-        }
-        const list = [];
-        data.forEach((item) => {
-          list.push(`<li data-url="${item.url}">${item.name}</li>`);
+    timeout = setTimeout(() => {
+      fetch(`/api/autocomplete/?q=${query}`)
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (!data.length) {
+            autocomplete.innerHTML = '';
+            autocomplete.style.display = 'none';
+            return;
+          }
+          const list = [];
+          data.forEach((item) => {
+            list.push(`<li data-url="${item.url}">${item.name}</li>`);
+          });
+          autocomplete.innerHTML = list.join('');
+          autocomplete.style.display = 'block';
         });
-        autocomplete.innerHTML = list.join('');
-        autocomplete.style.display = 'block';
-      });
+    }, 200);
   };
 
   // On window resize, make sure that the widget is positioned correctly.
