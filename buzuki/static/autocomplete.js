@@ -87,6 +87,9 @@
   autocomplete.addEventListener('click', (event) => {
     select(event.target);
     window.location.href = event.target.getAttribute('data-url');
+    // Remove to fix a bug on mobile where the autocomplete
+    // widget was shown again after selecting and hiding.
+    autocomplete.remove();
   });
 
   // Select hovered item.
