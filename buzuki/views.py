@@ -13,6 +13,7 @@ from buzuki.decorators import (add_slug_to_cookie, delete_cookie,
                                login_required, set_cookie)
 from buzuki.playlists import Playlist, get_selected_playlist
 from buzuki.scales import Scale
+from buzuki.sessions import Session
 from buzuki.songs import Song
 
 main = Blueprint('main', __name__)
@@ -43,6 +44,9 @@ def song(slug, semitones=None, root=None):
             root = playlist.roots[slug]
         except KeyError:
             pass
+
+    if session.get('logged_in') and request.args.get('random') != 'true':
+        Session.get().add_song(slug)
 
     song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     artist = Artist.get(song.artist_slug)
@@ -89,7 +93,7 @@ def random():
     cookie = request.cookies.get('latest_songs')
     latest_songs = json.loads(cookie) if cookie else []
     song = choice([song for song in songs if song.slug not in latest_songs])
-    return redirect(url_for('main.song', slug=song.slug))
+    return redirect(url_for('main.song', slug=song.slug) + '?random=true')
 
 
 @main.route('/artists/')
