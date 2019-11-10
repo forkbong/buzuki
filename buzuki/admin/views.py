@@ -4,6 +4,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 from buzuki import DoesNotExist
 from buzuki.admin.forms import PasswordForm, SongForm
 from buzuki.decorators import delete_cookie, login_required
+from buzuki.sessions import Session
 from buzuki.songs import Song
 
 admin = Blueprint('admin', __name__)
@@ -118,6 +119,7 @@ def login():
             form.next.data = next_url
     elif request.method == 'POST' and form.validate():
         session['logged_in'] = True
+        session['session_id'] = Session.get().session_id
         # If redirected from a page that requires login, redirect back.
         next_url = form.next.data
         if next_url:
@@ -132,4 +134,5 @@ def login():
 def logout():
     if session.get('logged_in'):
         session['logged_in'] = False
+        session['session_id'] = None
     return redirect(request.args.get('next') or url_for('main.index'))

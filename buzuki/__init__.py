@@ -66,6 +66,7 @@ def create_app(config_name='default', production=False):
         from buzuki.artists import Artist
         from buzuki.playlists import Playlist
         from buzuki.scales import Scale
+        from buzuki.sessions import Session
         from buzuki.songs import Song
         return {
             'app': app,
@@ -73,6 +74,7 @@ def create_app(config_name='default', production=False):
             'Song': Song,
             'Scale': Scale,
             'Playlist': Playlist,
+            'Session': Session,
         }
 
     csrf.init_app(app)
