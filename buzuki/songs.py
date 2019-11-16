@@ -12,8 +12,11 @@ from buzuki.utils import greeklish, to_unicode, transpose, transpose_to_root
 
 
 class Song(Model):
-    def __init__(self, name, artist, link, scale, rhythm, body, root=None):
+    def __init__(
+        self, name, year, artist, link, scale, rhythm, body, root=None
+    ):
         self.name = name
+        self.year = year
         self.artist = artist
         self.link = link
         self.scale = scale
@@ -57,14 +60,22 @@ class Song(Model):
             raise DoesNotExist(f"Song '{filename}' does not exist")
         file = path.read_text()
         name, artist, link, rest = [x for x in file.split('\n', 3)]
+        name_parts = name.split(' (')
+        if len(name_parts) == 2:
+            name = name_parts[0]
+            year = int(name_parts[1].rstrip(')'))
+        else:
+            assert len(name_parts) == 1
+            year = None
         scale, rhythm, body = rest.strip('\n').split('\n\n', 2)
-        song = cls(name, artist, link, scale, rhythm, body)
+        song = cls(name, year, artist, link, scale, rhythm, body)
         return song
 
     @classmethod
     def frommetadata(cls, song):
         return cls(
             name=song.get('name'),
+            year=None,
             artist=song.get('artist'),
             link=None,
             scale=song.get('scale'),
@@ -166,7 +177,8 @@ class Song(Model):
 
     def tofile(self):
         path: Path = self.directory / self.slug
-        content = [self.name, self.artist, self.link, '', self.info(), '']
+        name = f"{self.name} ({self.year})" if self.year else self.name
+        content = [name, self.artist, self.link, '', self.info(), '']
         path.write_text('\n'.join(content))
         cache_utils.clear()
 
