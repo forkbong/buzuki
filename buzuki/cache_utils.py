@@ -53,7 +53,7 @@ def fill_cache():
     path: Path
     for path in directory.iterdir():
         with path.open() as f:
-            name = f.readline().strip()
+            name = f.readline().strip().split(' (')[0]
             slug = greeklish(name)
             artist = f.readline().strip()
             artist_slug = greeklish(artist)

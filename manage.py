@@ -325,6 +325,9 @@ def check():
             print(song.name, "has no youtube id but audio is downloaded")
             clear_metadata(song.audio_path)
 
+        if not song.year:
+            print(click.style(f"{song.name} has no year", fg='bright_red'))
+
 
 if __name__ == '__main__':
     cli()
