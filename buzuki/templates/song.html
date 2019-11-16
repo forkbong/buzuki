@@ -5,7 +5,7 @@
 {%- endblock %}
 
 {% block header %}
-{{ song.name }}
+{{ song.name }}{% if song.year %} ({{ song.year }}){% endif %}
 {%- endblock %}
 
 {% block content %}

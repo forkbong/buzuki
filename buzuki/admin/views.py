@@ -34,6 +34,7 @@ def add():
         if form.validate():
             song = Song(
                 name=form.name.data,
+                year=form.year.data,
                 artist=form.artist.data,
                 scale=form.scale.data,
                 rhythm=form.rhythm.data,
@@ -69,6 +70,7 @@ def edit(slug):
 
     if request.method == 'POST' and form.validate():
         song.name = form.name.data
+        song.year = form.year.data
         song.artist = form.artist.data
         song.body = form.body.data
         song.scale = form.scale.data
@@ -79,6 +81,7 @@ def edit(slug):
 
     # Populate form with song's attributes
     form.name.data = song.name
+    form.year.data = song.year
     form.artist.data = song.artist
     form.body.data = song.body
     form.scale.data = song.scale
