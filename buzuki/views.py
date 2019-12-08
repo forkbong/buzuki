@@ -11,6 +11,7 @@ from buzuki.artists import Artist
 from buzuki.decorators import (add_slug_to_cookie, delete_cookie,
                                login_required, set_cookie)
 from buzuki.playlists import Playlist, get_selected_playlist
+from buzuki.related import get_related
 from buzuki.scales import Scale
 from buzuki.sessions import Session
 from buzuki.songs import Song
@@ -49,12 +50,16 @@ def song(slug, semitones=None, root=None):
 
     song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     artist = Artist.get(song.artist_slug)
-    related_songs = [song for song in artist.songs if song.slug != slug]
-    related_title = (
-        'Άλλα παραδοσιακά'
-        if song.artist == 'Παραδοσιακό'
-        else f'Άλλα του {artist.genitive}'
-    )
+    related_songs = get_related(slug)
+    if related_songs is not None:
+        related_title = 'Σχετικά'
+    else:
+        related_songs = [song for song in artist.songs if song.slug != slug]
+        related_title = (
+            'Άλλα παραδοσιακά'
+            if song.artist == 'Παραδοσιακό'
+            else f'Άλλα του {artist.genitive}'
+        )
 
     return render_template(
         'song.html',
