@@ -1,9 +1,9 @@
+import shutil
 from pathlib import Path
 
 import pytest
 
 from buzuki import create_app
-from buzuki.songs import Song
 
 
 @pytest.fixture(scope='function')
@@ -16,5 +16,5 @@ def client():
 
     yield app.test_client()
 
-    Song.delete_all()
+    shutil.rmtree(app.config['DIR'])
     context.pop()
