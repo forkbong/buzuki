@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from flask import current_app as app
+from flask import url_for
 
 from buzuki.sessions import Session
+from tests.factories import SongFactory
 
 
 def test_session(client):
@@ -40,3 +43,31 @@ def test_session(client):
     assert 'song1' not in session
     assert 'song2' in session
     assert 'song3' in session
+
+
+def test_session_get(client):
+    SongFactory(name='name').tofile()
+    url = url_for('main.song', slug='name')
+
+    today = datetime.now().date().strftime('%Y.%m.%d')
+    session_id = f'{today}-1'
+    filename: Path = app.config['DIR'] / 'sessions' / session_id
+
+    resp = client.get(url)
+    assert resp.status_code == 200
+    assert not filename.is_file()
+
+    client.post(
+        url_for('admin.login'),
+        data={'password': 'admin'},
+        follow_redirects=True,
+    )
+
+    resp = client.get(url)
+    assert resp.status_code == 200
+    assert filename.is_file()
+
+    session = Session(session_id)
+    assert len(session.songs) == 1
+    assert session.songs[0]['slug'] == 'name'
+    assert 'name' in session
