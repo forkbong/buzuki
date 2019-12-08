@@ -25,6 +25,7 @@ from buzuki import DoesNotExist, cache_utils, create_app, elastic
 from buzuki.artists import Artist
 from buzuki.elastic import es
 from buzuki.playlists import Playlist
+from buzuki.related import generate_related
 from buzuki.scales import Scale
 from buzuki.songs import Song
 from buzuki.utils import FLATS, SHARPS, unaccented
@@ -329,6 +330,12 @@ def check():
 
         if not song.year:
             print(click.style(f"{song.name} has no year", fg='bright_red'))
+
+
+@cli.command()
+def related():
+    """Analyze sessions and generate related songs."""
+    generate_related()
 
 
 if __name__ == '__main__':
