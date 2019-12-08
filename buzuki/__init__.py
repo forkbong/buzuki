@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os.path
 from datetime import datetime
 
@@ -51,6 +52,13 @@ def create_app(config_name='default', production=False):
     app.config.from_object(config[config_name])
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        filename=app.config['LOGFILE'],
+        filemode='w',
+    )
 
     @app.context_processor
     def context():
