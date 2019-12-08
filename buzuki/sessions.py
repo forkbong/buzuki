@@ -35,9 +35,18 @@ class Session:
     def get(cls):
         session_id = session.get('session_id')
         instance = cls(session_id)
+        last_song = instance.last_song
+        now = datetime.now()
+        if last_song and now - last_song['timestamp'] > timedelta(hours=5):
+            session_id = None
+            instance = cls()
         if session_id is None:
             session['session_id'] = instance.session_id
         return instance
+
+    @property
+    def last_song(self):
+        return self.songs[-1] if self.songs else None
 
     def get_session_id(self):
         today = datetime.now().date().strftime('%Y.%m.%d')
@@ -55,13 +64,12 @@ class Session:
         now = datetime.now().replace(microsecond=0)
 
         write = False
-        if self.songs:
-            updated = self.songs[-1]['timestamp']
-            if now - updated < timedelta(minutes=2):
-                # Didn't stay on the last song long
-                # enough, so it couldn't have been played.
-                del self.songs[-1]
-                write = True
+        last_song = self.last_song
+        if last_song and now - last_song['timestamp'] < timedelta(minutes=2):
+            # Didn't stay on the last song long
+            # enough, so it couldn't have been played.
+            del self.songs[-1]
+            write = True
 
         try:
             playlist_slug = request.cookies.get('playlist')
@@ -69,7 +77,7 @@ class Session:
             # Working outside of request context
             playlist_slug = None
 
-        if not self.songs or self.songs[-1]['slug'] != slug:
+        if not self.songs or self.last_song['slug'] != slug:
             self.songs.append({
                 'slug': slug,
                 'timestamp': now,
