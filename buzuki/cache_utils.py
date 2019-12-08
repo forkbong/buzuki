@@ -8,8 +8,10 @@ There are two caches, song and artist, both of type Dict[str, Dict].
 See test_cache.py for examples.
 """
 
+import logging
 from pathlib import Path
 
+import yaml
 from flask import current_app as app
 
 from buzuki import cache
@@ -43,6 +45,13 @@ def get_artists():
     if not artists:
         _, artists = fill_cache()
     return artists
+
+
+def get_related(slug):
+    related = cache.get('related')
+    if not related:
+        fill_related_cache()
+    return cache.get(f'related:{slug}')
 
 
 def fill_cache():
@@ -97,3 +106,18 @@ def fill_cache():
     cache.set('artists', artists)
 
     return songs, artists
+
+
+def fill_related_cache():
+    logging.info("Filling related cache...")
+
+    path: Path = app.config['DIR'] / 'related.yml'
+    try:
+        all_related = yaml.safe_load(path.read_text())
+    except FileNotFoundError:
+        all_related = {}
+    for slug, related in all_related.items():
+        cache.set(f'related:{slug}', related)
+    cache.set('related', True)
+
+    logging.info("Filled related cache")
