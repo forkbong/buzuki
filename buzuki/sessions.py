@@ -9,9 +9,13 @@ from buzuki.songs import Song
 
 
 class Session:
-    def __init__(self, session_id=None):
-        dirname = 'sessions-local' if app.config['DEBUG'] else 'sessions'
-        self.directory: Path = app.config['DIR'] / dirname
+    def __init__(self, session_id=None, directory=None):
+        self.directory: Path
+        if directory:
+            self.directory = directory
+        else:
+            dirname = 'sessions-local' if app.config['DEBUG'] else 'sessions'
+            self.directory = app.config['DIR'] / dirname
         self.directory.mkdir(mode=0o755, exist_ok=True)
         self.session_id = session_id or self.get_session_id()
         self.path = self.directory / self.session_id

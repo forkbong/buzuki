@@ -1,5 +1,8 @@
+import json
 import re
 import unicodedata
+
+from flask import request
 
 from buzuki import InvalidNote
 
@@ -89,3 +92,8 @@ def to_unicode(string: str) -> str:
     string = re.sub('b', '♭', string)
     string = re.sub('#', '♯', string)
     return string
+
+
+def get_latest_songs():
+    cookie = request.cookies.get('latest_songs')
+    return json.loads(cookie) if cookie else []

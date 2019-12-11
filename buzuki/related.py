@@ -1,22 +1,21 @@
-import json
 import math
 from pathlib import Path
 
 import yaml
 from flask import current_app as app
-from flask import request
 
 from buzuki import cache_utils
 from buzuki.cache_utils import get_related as get_related_cache
 from buzuki.playlists import get_selected_playlist
 from buzuki.sessions import Session
+from buzuki.utils import get_latest_songs
 
 
 def _calculate_distances(directory):
     """Calculate distances for each song pair in Sessions."""
     distances = {}
     for path in directory.iterdir():
-        data = Session(path.name).songs
+        data = Session(path.name, directory=directory).songs
         for i, song_left in enumerate(data[:-1]):
             slug_left = song_left['slug']
             for j, song_right in enumerate(data[i + 1:i + 21], start=i + 1):
@@ -96,10 +95,15 @@ def _bayesian_weighting(scores, C, m):
     return average_scores
 
 
+def _sorted_dict(data):
+    """Return dict `data` sorted by value, descending."""
+    return dict(sorted(data.items(), key=lambda kv: -kv[1]))
+
+
 def _related(average_scores):
     """Return related songs for each song sorted by average descending."""
     return {
-        song: dict(sorted(scores.items(), key=lambda kv: kv[1], reverse=True))
+        song: _sorted_dict(scores)
         for song, scores in sorted(average_scores.items())
     }
 
@@ -116,15 +120,60 @@ def generate_related():
     path.write_text(data)
 
 
+def logged_in():
+    from flask import session
+
+    return session.get('logged_in')
+
+
+def combine(score_list):
+    combined = {}
+    for scores, weight in score_list:
+        for slug, score in scores.items():
+            combined[slug] = combined.get(slug, 0) + weight * score
+
+    return _sorted_dict(combined)
+
+
 def get_related(slug):
     """Get a list of related songs for the given song."""
-    related = get_related_cache(slug)
-    if not related:
-        return None
+    if logged_in():
+        sequence = [song['slug'] for song in Session.get().songs]
+    else:
+        sequence = get_latest_songs()
 
-    cookie = request.cookies.get('latest_songs')
-    latest_songs = json.loads(cookie) if cookie else []
-    related = [slug for slug in related if slug not in latest_songs]
+    if sequence and sequence[-1] == slug:
+        del sequence[-1]
+
+    assert not sequence or sequence[-1] != slug
+
+    previous_songs = [slug]
+    if len(sequence) > 0:
+        previous_songs.append(sequence[-1])
+    if len(sequence) > 1:
+        previous_songs.append(sequence[-2])
+
+    score_list = []
+    for slug in previous_songs:
+        related = get_related_cache(slug)
+        if related is not None:
+            score_list.append(related)
+
+    len_score_list = len(score_list)
+    if len_score_list == 0:
+        return None
+    elif len_score_list == 1:
+        score_list[0] = (score_list[0], 1)
+    elif len_score_list == 2:
+        score_list[0] = (score_list[0], 0.7)
+        score_list[1] = (score_list[1], 0.3)
+    elif len_score_list:
+        score_list[0] = (score_list[0], 0.5)
+        score_list[1] = (score_list[1], 0.3)
+        score_list[2] = (score_list[2], 0.2)
+
+    related = combine(score_list)
+    related = [slug for slug in related if slug not in sequence]
 
     # If a playlist is selected and the given song is in
     # the playlist, filter out songs that aren't in it.
