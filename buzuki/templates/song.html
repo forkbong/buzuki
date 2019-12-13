@@ -144,6 +144,29 @@
     {% endif %}
   </div>
 </div>
+
+{% if admin %}
+<div id="deleteModal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Διαγραφή</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Θες σίγουρα να διαγράψεις το <q>{{ song.name }}</q>?</p>
+        <p class="text-danger"><small>Η διαγραφή είναι μη αναστρέψιμη</small></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Άκυρο</button>
+        <a href="{{ url_for('admin.delete', slug=song.slug) }}" class="btn btn-danger">Διαγραφή</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block javascript %}
