@@ -5,6 +5,7 @@ Description=Buzuki
 Restart=always
 RestartSec=1
 Environment="BUZUKI_DIR=/home/pi/documents/buzuki/"
+Environment="FLASK_ENV=production"
 WorkingDirectory=/home/pi/buzuki
 ExecStart=/home/pi/buzuki/venv/bin/python3 manage.py gunicorn
 
