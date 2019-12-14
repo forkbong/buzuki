@@ -39,6 +39,8 @@ def index():
 @add_slug_to_cookie
 def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
+    logging.info(f"Got request for song {slug}")
+
     playlist = get_selected_playlist()
     if playlist and not root:
         try:
@@ -46,11 +48,18 @@ def song(slug, semitones=None, root=None):
         except KeyError:
             pass
 
+    logging.debug("Got selected playlist")
+
     if session.get('logged_in') and request.args.get('random') != 'true':
         Session.get().add_song(slug)
 
+    logging.debug("Added song to session")
+
     song = Song.get_or_404(slug, semitones=semitones, root=root, unicode=True)
     artist = Artist.get(song.artist_slug)
+
+    logging.debug("Read song data from disk")
+
     related_songs = get_related(slug)
     if related_songs is not None:
         related_title = 'Σχετικά'
@@ -61,6 +70,8 @@ def song(slug, semitones=None, root=None):
             if song.artist == 'Παραδοσιακό'
             else f'Άλλα του {artist.genitive}'
         )
+
+    logging.debug("Rendering\n")
 
     return render_template(
         'song.html',

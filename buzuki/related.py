@@ -1,3 +1,4 @@
+import logging
 import math
 from pathlib import Path
 
@@ -137,6 +138,8 @@ def combine(score_list):
 
 def get_related(slug):
     """Get a list of related songs for the given song."""
+    logging.debug(f"Getting related for {slug}")
+
     if logged_in():
         sequence = [song['slug'] for song in Session.get().songs]
     else:
@@ -146,6 +149,8 @@ def get_related(slug):
         del sequence[-1]
 
     assert not sequence or sequence[-1] != slug
+
+    logging.debug("Got latest song sequence")
 
     previous_songs = [slug]
     if len(sequence) > 0:
@@ -160,6 +165,7 @@ def get_related(slug):
             score_list.append(related)
 
     len_score_list = len(score_list)
+    logging.debug(f"Found {len_score_list} of {len(previous_songs)}")
     if len_score_list == 0:
         return None
     elif len_score_list == 1:
@@ -173,13 +179,17 @@ def get_related(slug):
         score_list[2] = (score_list[2], 0.2)
 
     related = combine(score_list)
+    logging.debug("Combined scores")
+
     related = [slug for slug in related if slug not in sequence]
+    logging.debug("Filtered out played")
 
     # If a playlist is selected and the given song is in
     # the playlist, filter out songs that aren't in it.
     playlist = get_selected_playlist()
     if playlist and slug in playlist:
         related = [slug for slug in related if slug in playlist]
+        logging.debug("Filtered out not in playlist")
 
     cached_songs = cache_utils.get_songs()
     return [{
