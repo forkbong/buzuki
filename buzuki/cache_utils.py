@@ -55,6 +55,8 @@ def get_related(slug):
 
 
 def fill_cache():
+    logging.info("Filling song/artist cache...")
+
     songs = {}
     artists = {}
 
@@ -104,6 +106,8 @@ def fill_cache():
 
     cache.set('songs', songs)
     cache.set('artists', artists)
+
+    logging.info("Filled song/artist cache")
 
     return songs, artists
 
