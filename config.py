@@ -12,7 +12,6 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    DEBUG = True
     LOGFILE = Path('/tmp/buzuki.log')
 
 
@@ -27,7 +26,7 @@ class TestingConfig(Config):
 
 
 config = {
-    'default': Config,
+    'production': Config,
     'development': DevelopmentConfig,
     'testing': TestingConfig,
 }

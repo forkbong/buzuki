@@ -1,6 +1,6 @@
 import hashlib
 import logging
-import os.path
+import os
 from datetime import datetime
 
 from cachelib import RedisCache
@@ -48,7 +48,10 @@ class FileHashFlask(Flask):
                 values['h'] = h
 
 
-def create_app(config_name='default', production=False):
+def create_app(config_name='development'):
+    if config_name == 'development':
+        os.environ['FLASK_ENV'] = 'development'
+
     app = FileHashFlask(__name__)
 
     app.config.from_object(config[config_name])
@@ -66,7 +69,7 @@ def create_app(config_name='default', production=False):
     def context():
         return {
             'current_year': datetime.utcnow().year,
-            'production': production,
+            'production': config_name == 'production',
         }
 
     @app.shell_context_processor
