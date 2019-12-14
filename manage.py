@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -30,6 +31,12 @@ from buzuki.scales import Scale
 from buzuki.songs import Song
 from buzuki.utils import FLATS, SHARPS, unaccented
 
+environment = (
+    'production'
+    if os.environ.get('FLASK_ENV') == 'production'
+    else 'development'
+)
+
 
 def pprint(obj):
     """Pretty-print `obj` using `json` and `pygments`."""
@@ -41,7 +48,7 @@ def pprint(obj):
     print(formatted)
 
 
-@click.group(cls=FlaskGroup, create_app=lambda: create_app('default'))
+@click.group(cls=FlaskGroup, create_app=lambda: create_app(environment))
 def cli():
     """Management script for buzuki."""
 
@@ -91,7 +98,7 @@ def gunicorn(workers, host, port):
             self.cfg.set('workers', workers)
 
         def load(self):
-            return create_app(production=True)
+            return create_app('production')
 
     GunicornApplication().run()
 
