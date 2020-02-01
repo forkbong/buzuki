@@ -345,5 +345,16 @@ def related():
     generate_related()
 
 
+@cli.command()
+def export():
+    """Export all playlist's songs to file."""
+    playlist = Playlist.get('giannis')
+    with open('asdf.txt', 'w') as f:
+        for song in playlist.songs:
+            song = Song.get(song.slug, root=song.root)
+            f.write(f"{song.name} - {song.artist} ({song.year})\n\n")
+            f.write(f"{song.info()}\n\f")
+
+
 if __name__ == '__main__':
     cli()
