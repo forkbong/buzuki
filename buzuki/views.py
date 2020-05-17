@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from pathlib import Path
 from secrets import choice
 
 from flask import Blueprint, abort
@@ -268,3 +269,13 @@ def audio(filename):
     nginx.
     """
     return send_from_directory(app.config['DIR'] / 'audio', filename)
+
+
+@main.route('/sw.js')
+def service_worker():
+    """Serve service worker.
+
+    For local development only.
+    """
+    assert app.static_folder is not None
+    return send_from_directory(Path(app.static_folder) / 'sw', 'sw.js')
