@@ -15,20 +15,20 @@
       <h5>
         <a href="{{ url_for('main.artist', slug=song.artist_slug) }}">{{ song.artist }}</a>
       </h5>
-      <span>
-        <span>
+      <div class="subtitle-icons">
+        <div>
           {% include 'partials/transpose.html' %}
-        </span>
+        </div>
         {% if admin %}
-        <span>
+        <div class="ml-3">
           <a href="#"
              id="playlist-menu-button"
-             class="dropdown-button ml-1"
+             class="dropdown-button"
              data-toggle="dropdown"
              title="Λίστες">
             <i class="fa fa-th-list" aria-hidden="true"></i>
           </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="playlist-menu-button" style="width: 200px;">
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="playlist-menu-button">
             <h1 class="dropdown-header">Λίστες</h1>
             <div class="dropdown-divider"></div>
             {% for playlist in song.playlists %}
@@ -67,12 +67,12 @@
             </div>
             {% endfor %}
           </div>
-        </span>
+        </div>
         {% endif %}
-        <span>
+        <div class="ml-3">
           <a href="#"
              id="more-options-menu-button"
-             class="dropdown-button ml-1"
+             class="dropdown-button"
              data-toggle="dropdown"
              title="Επιλογές">
             <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
@@ -118,8 +118,8 @@
             </a>
             {% endif %}
           </div>
-        </span>
-      </span>
+        </div>
+      </div>
     </div>
     <pre class="mt-2" id="song-info">{{ song.info(html=True)|safe}}</pre>
   </div>
