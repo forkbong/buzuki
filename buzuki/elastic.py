@@ -25,6 +25,15 @@ greek_stemmer_filter = {
     'language': 'greek',
 }
 
+synonym_filter = {
+    'type': 'synonym',
+    'synonyms': [
+        'γιαννης => γιοβαν τσαους',
+        'ειτζιριδης => γιοβαν τσαους',
+        'προυσα => ηρωίνη μαυράκι',
+    ]
+}
+
 # Analyzers
 greek_autocomplete_analyzer = {
     'tokenizer': 'standard',
@@ -38,6 +47,7 @@ greek_lowercase_analyzer = {
     'tokenizer': 'standard',
     'filter': [
         'greek_lowercase_filter',
+        'synonym_filter',
     ]
 }
 
@@ -89,6 +99,7 @@ def create_index():
                     'edge_ngram_filter': edge_ngram_filter,
                     'greek_lowercase_filter': greek_lowercase_filter,
                     'greek_stemmer_filter': greek_stemmer_filter,
+                    'synonym_filter': synonym_filter,
                 },
                 'analyzer': {
                     'greek_autocomplete': greek_autocomplete_analyzer,
