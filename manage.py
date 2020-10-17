@@ -129,14 +129,14 @@ def index():
     """Index all data into elasticsearch."""
     elastic.create_index()
 
-    def index_all(model, name):
-        with click.progressbar(model.all(), label=f"Indexing {name}") as bar:
+    def index_all(items, name):
+        with click.progressbar(items, label=f"Indexing {name}") as bar:
             for item in bar:
                 elastic.index(item)
 
-    index_all(Song, 'songs')
-    index_all(Artist, 'artists')
-    index_all(Scale, 'scales')
+    index_all(Song.all(frommetadata=False), 'songs')
+    index_all(Artist.all(), 'artists')
+    index_all(Scale.all(), 'scales')
 
 
 @cli.command()

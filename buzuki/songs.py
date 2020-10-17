@@ -85,10 +85,18 @@ class Song(Model):
         )
 
     @classmethod
-    def all(cls):
-        """Get all songs from the database."""
-        songs = cache_utils.get_songs().values()
-        return [cls.frommetadata(song) for song in songs]
+    def all(cls, frommetadata: bool = True):
+        """Get all songs from the database.
+
+        Args:
+            frommetadata: Use cached song data instead of hitting the disk.
+        """
+        if frommetadata:
+            songs = cache_utils.get_songs().values()
+            return [cls.frommetadata(song) for song in songs]
+        else:
+            directory = app.config['DIR'] / 'songs'
+            return [Song.get(path.name) for path in directory.iterdir()]
 
     @property
     def youtube_id(self):
