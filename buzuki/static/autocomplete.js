@@ -37,7 +37,7 @@
       return;
     }
     timeout = setTimeout(() => {
-      fetch(`/api/search/${query}/`)
+      fetch(`/api/autocomplete/?q=${query}`)
         .then((resp) => resp.json())
         .then((data) => {
           if (!data.length) {
