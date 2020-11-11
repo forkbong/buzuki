@@ -2,7 +2,7 @@ from flask import current_app as app
 from flask_wtf import FlaskForm
 from werkzeug.security import check_password_hash
 from wtforms import HiddenField, PasswordField, StringField, TextAreaField
-from wtforms.validators import URL, DataRequired, ValidationError
+from wtforms.validators import URL, DataRequired, Optional, ValidationError
 
 
 class Year:
@@ -35,7 +35,7 @@ class SongForm(FlaskForm):
     )
     link = StringField(
         'YouTube link', [
-            DataRequired('Το link είναι υποχρεωτικό'),
+            Optional(),
             URL(message='Αυτό δεν ήταν URL')
         ]
     )
