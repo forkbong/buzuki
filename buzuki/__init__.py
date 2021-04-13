@@ -11,9 +11,7 @@ from werkzeug.security import safe_join
 from config import config
 
 csrf = CSRFProtect()
-# The default host is 'localhost'. We use 'redis' because gitlab-ci
-# uses that, and we redirect redis to localhost in `/etc/hosts`.
-cache = RedisCache(host='redis', default_timeout=0, key_prefix='buzuki_cache_')
+cache = RedisCache(default_timeout=0, key_prefix='buzuki_cache_')
 
 
 class DoesNotExist(Exception):

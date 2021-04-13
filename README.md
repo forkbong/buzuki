@@ -1,6 +1,6 @@
 # Buzuki
 
-[![pipeline status](https://gitlab.com/forkbong/buzuki/badges/master/pipeline.svg)](https://gitlab.com/forkbong/buzuki/commits/master)
+[![build](https://travis-ci.com/forkbong/buzuki.svg?branch=master)](https://travis-ci.org/forkbong/buzuki)
 
 A minimalistic web app for displaying and transposing Greek song chords.
 

@@ -1,0 +1,10 @@
+language: python
+sudo: false
+python: 3.9
+services: redis-server
+install:
+  - pip install poetry --upgrade
+  - poetry install
+script: poetry run python3 -m pytest
+after_success:
+  - codecov
