@@ -53,10 +53,12 @@ pre {
 
 a {
   color: #212529;
+  text-decoration: none;
 }
 
 a:hover {
   color: #212529;
+  text-decoration: underline;
 }
 
 /* https://stackoverflow.com/a/28286277 */
