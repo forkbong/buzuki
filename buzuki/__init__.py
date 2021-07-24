@@ -5,8 +5,8 @@ from datetime import datetime
 
 from cachelib import RedisCache
 from flask import Flask
-from flask.helpers import safe_join
 from flask_wtf import CSRFProtect
+from werkzeug.security import safe_join
 
 from config import config
 

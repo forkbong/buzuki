@@ -49,7 +49,7 @@ class PasswordForm(FlaskForm):
         if not super().validate(*args, **kwargs):
             return False
 
-        password = self.password.data.encode()
+        password = self.password.data
         pwhash = app.config['PWHASH']
         if not check_password_hash(pwhash, password):
             self.password.errors.append('Λάθος κωδικός')

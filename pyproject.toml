@@ -11,13 +11,13 @@ repository = "https://gitlab.com/forkbong/buzuki"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-flask = "^1.0"
+flask = "^2.0"
 cachelib = "^0.1"
 redis = "^3.2"
 flask-wtf = "^0.14.2"
 pyyaml = "^5.1"
 elasticsearch = "^7.0"
-gunicorn = "^19.9"
+gunicorn = "^20.1"
 requests = "^2.22"
 
 [tool.poetry.dev-dependencies]
