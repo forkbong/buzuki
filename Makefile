@@ -20,4 +20,7 @@ coverage:
 report: coverage
 	$(BROWSER) htmlcov/index.html
 
+requirements.txt: poetry.lock
+	poetry export --dev --without-hashes -f requirements.txt > requirements.txt
+
 .PHONY: init run test coverage report
