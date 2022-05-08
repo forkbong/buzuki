@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from typing import Optional
 
 import yaml
 from flask import current_app as app
@@ -100,7 +101,7 @@ class Playlist(Model):
         self.tofile()
 
 
-def get_selected_playlist():
+def get_selected_playlist() -> Optional[Playlist]:
     playlist = getattr(g, 'playlist', None)
     if playlist:
         return playlist

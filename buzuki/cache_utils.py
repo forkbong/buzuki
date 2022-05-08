@@ -37,6 +37,7 @@ def get_songs():
     songs = cache.get('songs')
     if not songs:
         songs, _ = fill_cache()
+    assert isinstance(songs, dict)
     return songs
 
 
@@ -44,6 +45,7 @@ def get_artists():
     artists = cache.get('artists')
     if not artists:
         _, artists = fill_cache()
+    assert isinstance(artists, dict)
     return artists
 
 

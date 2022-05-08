@@ -42,7 +42,7 @@ def song(slug, semitones=None, root=None):
     """A song optionally transposed by given semitones."""
     logging.info(f"Got request for song {slug}")
 
-    playlist: Playlist = get_selected_playlist()
+    playlist = get_selected_playlist()
     if playlist and not root:
         try:
             root = playlist.roots[slug]
@@ -257,6 +257,7 @@ def search():
 @main.app_errorhandler(404)
 def page_not_found(e):
     """Error 404 handler."""
+    logging.error(e)
     return render_template('404.html'), 404
 
 
@@ -276,4 +277,5 @@ def service_worker():
 
     For local development only.
     """
+    assert app.static_folder is not None
     return send_from_directory(Path(app.static_folder) / 'sw', 'sw.js')

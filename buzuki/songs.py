@@ -37,6 +37,7 @@ class Song(Model):
             unicode: Use unicode sharps and flats in the song's body.
         """
         song = cls.fromfile(filename=slug)
+        assert song.body is not None
         if semitones is not None:
             song.scale = transpose(song.scale, semitones)
             song.body = transpose(song.body, semitones)

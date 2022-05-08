@@ -4,7 +4,8 @@ set -e
 
 VERSION=7.17.3
 DIRECTORY=elasticsearch-$VERSION
-TARBALL=elasticsearch-$VERSION-linux-x86_64.tar.gz
+OS=$(uname | tr '[:upper:]' '[:lower:]')
+TARBALL=elasticsearch-${VERSION}-${OS}-x86_64.tar.gz
 
 usage() {
     echo "Usage: $(basename "$0") COMMAND"

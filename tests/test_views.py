@@ -40,7 +40,7 @@ def test_artist_one_song(client):
     url = url_for('main.artist', slug='artist')
     resp = client.get(url)
     assert resp.status_code == 302
-    assert resp.location == url_for('main.song', slug='name_a')
+    assert resp.location == '/songs/name_a/'
 
 
 def test_artist_normal(client):
