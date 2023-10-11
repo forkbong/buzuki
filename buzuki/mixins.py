@@ -16,6 +16,13 @@ class Model:
             return self.slug == other.slug
         return False
 
+    def get(self):
+        raise NotImplementedError
+
+    @classmethod
+    def all(cls):
+        raise NotImplementedError
+
     @classmethod
     def get_or_404(cls, *args, **kwargs):
         try:
